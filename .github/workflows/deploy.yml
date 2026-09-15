@@ -1,9 +1,22 @@
 name: 部署到阿里云 ECS
 
-# 什么时候触发：推送到 main，或者在 Actions 页面手动点一下
+# ============================================================
+# ⚠️ 本工作流目前【未启用】，保留仅作备用。
+#
+# 原因：这台服务器直连 github.com 是 TCP 层超时
+#   （curl 28 Failed to connect to github.com port 443 ... Connection timed out），
+#   所以本工作流里那步"在服务器上 git pull"必然失败。
+#
+# 现用的自动部署方案是【服务器定时轮询国内镜像】：
+#   deploy/setup-autodeploy.sh  +  deploy/autopull.sh  +  deploy/mirrors.txt
+#   见 README 第九节第 5 小节。
+#
+# 因此这里去掉了 push 自动触发，避免每次推送都跑一次、失败后给你发邮件。
+# 想恢复：把下面 push 那段注释解开，并配好 SSH_PRIVATE_KEY 与服务器到 GitHub 的网络。
+# ============================================================
 on:
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
   workflow_dispatch:
 
 # 同一时间只跑一个部署，避免连续两次推送互相打断

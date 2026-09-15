@@ -270,7 +270,22 @@ GET  /api/me                                → 校验 token，未登录返回 4
 
 ---
 
-## 九、自动部署（GitHub Actions · 推送即上线）
+## 九、自动部署
+
+> ### ⚠️ 先看这里：本项目**实际启用**的是第 5 小节的方案
+>
+> 下面第 1~4 小节（GitHub Actions 推送即上线）**目前是关闭状态**，保留作备用。
+> 原因是硬伤：**这台服务器直连 `github.com` 是 TCP 层超时**
+> （实测 `Failed to connect to github.com port 443 after 129843 ms: Connection timed out`），
+> 所以工作流里"在服务器上 `git pull`"这一步必然失败，配 HTTP/1.1 之类参数也救不了。
+>
+> **实际在用的方案 = 第 5 小节：服务器定时轮询国内镜像。**
+> 一键启用：`bash /opt/xiangwang/deploy/setup-autodeploy.sh`
+>
+> 工作流文件的 `push` 触发已注释掉，避免每次推送都跑一次、失败后发邮件打扰。
+> 想恢复：解开 `push` 注释，并先解决服务器到 GitHub 的网络问题。
+
+### （备用方案一）GitHub Actions · 推送即上线
 
 推到 `main` 后，GitHub 会自动 SSH 进服务器执行 `git pull`，站点随即更新。
 工作流在 `.github/workflows/deploy.yml`，一共三步：装载密钥 → 服务器上 `git pull` → 从公网 `curl` 探测站点。
