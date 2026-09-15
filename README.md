@@ -275,20 +275,33 @@ GET  /api/me                                → 校验 token，未登录返回 4
 推到 `main` 后，GitHub 会自动 SSH 进服务器执行 `git pull`，站点随即更新。
 工作流在 `.github/workflows/deploy.yml`，一共三步：装载密钥 → 服务器上 `git pull` → 从公网 `curl` 探测站点。
 
-### 1. 在服务器上准备一把专用部署密钥
+### 1. 在本地准备一把专用部署密钥
 
 **不要复用你平时登录用的私钥** —— 单独生成一把，将来要作废直接删掉就行。
 
 ```bash
-# 在你本机执行：生成一对专用密钥
+# ① 在你自己的电脑上生成（问 passphrase 就直接回车，别设密码，否则 Actions 用不了）
 ssh-keygen -t ed25519 -f ~/.ssh/deploy_xiangwang -N "" -C "github-actions-deploy"
-cat ~/.ssh/deploy_xiangwang                 # 复制这份【私钥】全文，下一步要用
 
-# 在服务器上执行：把【公钥】追加进授权列表
-cat >> ~/.ssh/authorized_keys <<'EOF'
-（粘贴 ~/.ssh/deploy_xiangwang.pub 的内容）
-EOF
+# ② 把公钥装到服务器上（推荐这条，一条命令搞定，不用手动复制粘贴）
+ssh-copy-id -i ~/.ssh/deploy_xiangwang.pub root@<服务器IP>
+
+# ③ 打印私钥全文，第 2 步要粘进 GitHub
+cat ~/.ssh/deploy_xiangwang
 ```
+
+> **没有 `ssh-copy-id`（Windows 原生 PowerShell 可能没有）时**，用下面这条手动方式 ——
+> 注意把 `<公钥>` 换成 `cat ~/.ssh/deploy_xiangwang.pub` 输出的那一整行，
+> **不要把尖括号或说明文字一起粘进去**，否则会往授权文件里写进一行垃圾：
+>
+> ```bash
+> # 在服务器上执行
+> echo '<公钥>' >> ~/.ssh/authorized_keys
+> tail -1 ~/.ssh/authorized_keys | cut -c1-40     # 应显示 ssh-ed25519 AAAA...
+> ```
+>
+> **更省事的替代**：把 `~/.ssh/deploy_xiangwang.pub` 整个文件用文本编辑器打开，复制里面那一行，
+> 再用 `nano ~/.ssh/authorized_keys` 粘贴到末尾保存 —— 这样不会把提示文字误当命令执行。
 
 ### 2. 在 GitHub 仓库里加一条 Secret
 
