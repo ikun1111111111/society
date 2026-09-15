@@ -11,6 +11,20 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+# ============================================================
+# 服务器信息直接写在这里 —— 换服务器只改这一段。
+# 这些都不算机密（公网 IP 谁都能扫到、root 是默认用户名），
+# 写在文件里可以让你少配两个 Secret。
+#
+# ⚠️ 唯一必须放进 GitHub 机密的，是下面用到的 secrets.SSH_PRIVATE_KEY
+# ============================================================
+env:
+  DEPLOY_HOST: 47.99.180.48      # 服务器公网 IP
+  DEPLOY_USER: root              # SSH 用户名
+  DEPLOY_PORT: "22"              # SSH 端口
+  DEPLOY_DIR: /opt/xiangwang     # 服务器上的仓库路径
+  WEB_PORT: "8085"               # 站点对外端口
+
 jobs:
   deploy:
     name: 服务器拉取代码并验证
@@ -19,37 +33,32 @@ jobs:
     steps:
       - name: 装载 SSH 私钥
         env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "::error::没读到 SSH_PRIVATE_KEY。请到仓库 Settings → Secrets and variables → Actions 添加一条，名字必须完全一致。"
+            exit 1
+          fi
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           # 记录服务器指纹，让后面可以用 StrictHostKeyChecking=yes
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: 在服务器上 git pull
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
-          SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           ssh -i ~/.ssh/deploy_key \
-              -p "$SSH_PORT" \
+              -p "$DEPLOY_PORT" \
               -o IdentitiesOnly=yes \
               -o StrictHostKeyChecking=yes \
               -o ConnectTimeout=15 \
-              "$SSH_USER@$SSH_HOST" \
-              'cd /opt/xiangwang && git pull --ff-only && echo "--- 当前版本 ---" && git log -1 --oneline'
+              "$DEPLOY_USER@$DEPLOY_HOST" \
+              "cd $DEPLOY_DIR && git pull --ff-only && echo '--- 当前版本 ---' && git log -1 --oneline"
 
       - name: 从公网验证站点真的起来了
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          WEB_PORT: ${{ secrets.WEB_PORT || '8085' }}
         run: |
-          # 容器是挂载仓库目录的，pull 完即生效；这里从外部真实访问一次确认
-          url="http://${SSH_HOST}:${WEB_PORT}/login.html"
+          # 容器挂载的是仓库里的目录，pull 完即生效；这里从外部真实访问一次确认
+          url="http://${DEPLOY_HOST}:${WEB_PORT}/login.html"
           for i in 1 2 3; do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$url" || echo 000)
             echo "第 ${i} 次探测 $url → HTTP $code"

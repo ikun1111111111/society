@@ -290,17 +290,20 @@ cat >> ~/.ssh/authorized_keys <<'EOF'
 EOF
 ```
 
-### 2. 在 GitHub 仓库里加 Secrets
+### 2. 在 GitHub 仓库里加一条 Secret
 
 仓库 → **Settings → Secrets and variables → Actions → New repository secret**：
 
-| Name | Value | 必填 |
-|---|---|---|
-| `SSH_PRIVATE_KEY` | 上一步复制的**私钥全文**（要含 `-----BEGIN…` 和 `-----END…` 两行） | ✅ |
-| `SSH_HOST` | 服务器公网 IP | ✅ |
-| `SSH_USER` | `root` | ✅ |
-| `SSH_PORT` | SSH 端口，默认 22 | 可选 |
-| `WEB_PORT` | 站点端口，默认 8085 | 可选 |
+| Name | Value |
+|---|---|
+| `SSH_PRIVATE_KEY` | 上一步复制的**私钥全文**（要含 `-----BEGIN…` 和 `-----END…` 两行） |
+
+**只需要这一条**（那个按钮点一次加一条，加一条就够了）。
+服务器 IP、SSH 用户名、端口、站点端口都直接写在 `.github/workflows/deploy.yml` 顶部的 `env:` 里，
+换服务器改那一段即可 —— 公网 IP 本身谁都能扫到、`root` 也是默认用户名，写进文件能省掉两次配置。
+
+> 如果你**不希望服务器 IP 出现在公开仓库**里，就在 Secrets 里再加一条 `SSH_HOST`，
+> 然后把工作流 `env:` 里的 `DEPLOY_HOST: 47.99.180.48` 改成 `DEPLOY_HOST: ${{ secrets.SSH_HOST }}`。
 
 ### 3. 验证
 
