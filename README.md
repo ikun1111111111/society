@@ -25,7 +25,8 @@ society/
 ├─ dist/                    早期 v2 构建产物（保留备查，不参与部署）
 ├─ build_v3.py              ★ v3 静态站生成器（数据 + 模板都在里面）
 ├─ deploy/nginx.conf        Nginx 站点配置（给「宿主机直装 Nginx」那条路用）
-├─ Dockerfile               静态站镜像（可选，见第五节备注）
+├─ .github/workflows/       自动部署流水线（推送 main 即在服务器上 git pull，见第九节）
+├─ Dockerfile               静态站镜像（可选，见第四节备注）
 ├─ .gitattributes           强制 LF 换行（服务器是 Linux，别让 CRLF 漏进去）
 └─ .gitignore
 ```
@@ -46,9 +47,10 @@ npx serve v3 -l 8777
 
 **演示账号**：用户名 `demo`，口令 `xw2026`，身份是管理员。
 
-> ⚠️ 这个预置账号**只在本地地址下可用**（`localhost` / `127.0.0.1` / 直接双击打开的 `file://`）。
-> 从公网域名或 IP 访问时它自动失效，登录页上的「一键进入」入口也会被摘掉 ——
-> 详见第七节，以及 `v3/assets/auth.js` 里的 `DEMO_ON` 开关。
+> 该账号由 `v3/assets/auth.js` 顶部的 **`DEMO_FORCE`** 控制：
+> `true` = 任何地址都能用（**当前值**，线上也能用「一键进入」）；
+> `false` = 只在本地地址启用（`localhost` / `127.0.0.1` / `file://`），公网访问时自动失效、
+> 登录页上的相关入口也会被摘掉。
 
 ---
 
@@ -146,6 +148,8 @@ cd /opt/xiangwang && git pull
 
 挂载是实时的，文件一更新网站就是新的。**不用重建容器、不用 reload。**
 
+> 配好第九节的自动部署之后，这一步连手动都不用做了：推送 `main` 就会自动拉取。
+
 ### 6. 常用运维
 
 ```bash
@@ -211,15 +215,22 @@ location = /club { return 301 /club/; }
 
 ## 七、⚠️ 上线安全说明（请认真读）
 
-### 1. 已做的防护
+### 1. 预置测试账号
 
-`v3/assets/` 里的 `auth.js` 是**纯前端准入**：邀请码表、账号表、会话全部存在浏览器 `localStorage` 里。
-其中预置的 `demo` 管理员账号（公开口令）已加门禁 —— **只在 `localhost` / `127.0.0.1` / `file://` 下启用**，
-公网访问时自动失效，登录页的相关入口也会一并摘掉。开关在 `auth.js` 顶部的 `DEMO_FORCE`。
+`v3/assets/auth.js` 里内置了一个 `demo` 管理员账号（口令 `xw2026`），
+由顶部的 **`DEMO_FORCE`** 开关控制生效范围：
+
+- **`true`（当前值）**：任何地址都能用，公网访问时登录页有「一键进入」按钮
+- `false`：只在 `localhost` / `127.0.0.1` / `file://` 下可用，公网自动失效并摘掉入口
+
+⚠️ **口令写死在源码里，而仓库是公开的，所以谁都能看到。**
+需要知道的是：本仓库里本来就有**可无限次使用的管理员邀请码**（`XW2026-DEMO`、`XW2026-ADMIN`），
+所以公开这个口令并不额外增加多少风险。想收紧就把 `DEMO_FORCE` 改成 `false` 重新部署。
 
 ### 2. 但它仍然不是「安全」
 
-**必须清楚：这类前端门禁拦不住真正想进来的人。** 原因：
+`v3/assets/auth.js` 是**纯前端准入**：邀请码表、账号表、会话全部存在浏览器 `localStorage` 里。
+**这类前端门禁拦不住真正想进来的人。** 原因：
 
 - 邀请码表明文写在 `auth.js` 里 → 打开 F12 就能看到全部邀请码（包括 `XW2026-ADMIN` 这种管理员码）；
 - 手写一条 `localStorage` 记录就能伪造管理员会话，无需任何口令；
@@ -259,6 +270,74 @@ GET  /api/me                                → 校验 token，未登录返回 4
 
 ---
 
-## 九、许可
+## 九、自动部署（GitHub Actions · 推送即上线）
+
+推到 `main` 后，GitHub 会自动 SSH 进服务器执行 `git pull`，站点随即更新。
+工作流在 `.github/workflows/deploy.yml`，一共三步：装载密钥 → 服务器上 `git pull` → 从公网 `curl` 探测站点。
+
+### 1. 在服务器上准备一把专用部署密钥
+
+**不要复用你平时登录用的私钥** —— 单独生成一把，将来要作废直接删掉就行。
+
+```bash
+# 在你本机执行：生成一对专用密钥
+ssh-keygen -t ed25519 -f ~/.ssh/deploy_xiangwang -N "" -C "github-actions-deploy"
+cat ~/.ssh/deploy_xiangwang                 # 复制这份【私钥】全文，下一步要用
+
+# 在服务器上执行：把【公钥】追加进授权列表
+cat >> ~/.ssh/authorized_keys <<'EOF'
+（粘贴 ~/.ssh/deploy_xiangwang.pub 的内容）
+EOF
+```
+
+### 2. 在 GitHub 仓库里加 Secrets
+
+仓库 → **Settings → Secrets and variables → Actions → New repository secret**：
+
+| Name | Value | 必填 |
+|---|---|---|
+| `SSH_PRIVATE_KEY` | 上一步复制的**私钥全文**（要含 `-----BEGIN…` 和 `-----END…` 两行） | ✅ |
+| `SSH_HOST` | 服务器公网 IP | ✅ |
+| `SSH_USER` | `root` | ✅ |
+| `SSH_PORT` | SSH 端口，默认 22 | 可选 |
+| `WEB_PORT` | 站点端口，默认 8085 | 可选 |
+
+### 3. 验证
+
+随便改点东西 push 到 `main`，然后看仓库的 **Actions** 标签：
+三步全绿就算成功。第三步会从 GitHub 的机器上真实访问一次
+`http://<IP>:<WEB_PORT>/login.html`，返回 200 才通过 —— 所以它验证的是"网站真的能打开"，不是"命令跑完了"。
+
+### 4.（可选但推荐）把密钥权限收紧到只能干这一件事
+
+在服务器 `~/.ssh/authorized_keys` 里，把部署公钥那一行**改成**下面这样（前面加一段限制）：
+
+```
+command="cd /opt/xiangwang && git pull --ff-only",no-pty,no-port-forwarding,no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...你的公钥... github-actions-deploy
+```
+
+这样即使私钥泄露，对方也只能触发一次 `git pull`，拿不到 shell、也不能转发端口。
+
+### 5. 不想用 Actions？服务器定时轮询
+
+零额外服务、不用开端口、不用配密钥，代价是最多延迟 5 分钟：
+
+```bash
+cat > /opt/xiangwang-pull.sh <<'EOF'
+#!/bin/sh
+cd /opt/xiangwang || exit 1
+git pull -q --ff-only >> /var/log/xiangwang-pull.log 2>&1
+EOF
+chmod +x /opt/xiangwang-pull.sh
+( crontab -l 2>/dev/null; echo "*/5 * * * * /opt/xiangwang-pull.sh" ) | crontab -
+crontab -l          # 确认已写入
+```
+
+> 两种方式都依赖同一件事：**服务器能自己访问 GitHub**。
+> 如果服务器连不上 GitHub，先把网络搞通，否则自动部署一定失败。
+
+---
+
+## 十、许可
 
 社团内部项目，未开源授权，请勿外传。

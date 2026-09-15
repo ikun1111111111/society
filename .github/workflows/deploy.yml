@@ -1,0 +1,63 @@
+name: 部署到阿里云 ECS
+
+# 什么时候触发：推送到 main，或者在 Actions 页面手动点一下
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 同一时间只跑一个部署，避免连续两次推送互相打断
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: 服务器拉取代码并验证
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 装载 SSH 私钥
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # 记录服务器指纹，让后面可以用 StrictHostKeyChecking=yes
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: 在服务器上 git pull
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+              -p "$SSH_PORT" \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes \
+              -o ConnectTimeout=15 \
+              "$SSH_USER@$SSH_HOST" \
+              'cd /opt/xiangwang && git pull --ff-only && echo "--- 当前版本 ---" && git log -1 --oneline'
+
+      - name: 从公网验证站点真的起来了
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          WEB_PORT: ${{ secrets.WEB_PORT || '8085' }}
+        run: |
+          # 容器是挂载仓库目录的，pull 完即生效；这里从外部真实访问一次确认
+          url="http://${SSH_HOST}:${WEB_PORT}/login.html"
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$url" || echo 000)
+            echo "第 ${i} 次探测 $url → HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "✅ 部署完成，站点正常响应"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::部署后站点未返回 200。请在服务器上执行：docker ps --filter name=xiangwang-site; docker logs xiangwang-site --tail 30"
+          exit 1
