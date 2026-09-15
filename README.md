@@ -346,11 +346,17 @@ command="cd /opt/xiangwang && git pull --ff-only",no-pty,no-port-forwarding,no-a
 cd /opt/xiangwang && git pull && bash deploy/setup-autodeploy.sh
 ```
 
-脚本做两件事：
+脚本做三件事：
 
-1. 装一条 `*/5 * * * * cd /opt/xiangwang && git pull --ff-only` 定时任务
+1. 把本仓库的 git 传输改成 **HTTP/1.1** —— 国内服务器拉 GitHub 走 HTTP/2 常报
+   `RPC failed; curl 16 Error in the HTTP2 framing layer`，这一步专门治它
+2. 装一条定时任务 `*/5 * * * * /opt/xiangwang/deploy/autopull.sh`
    （可重复执行，不会产生重复条目；也不会动你原有的其它 cron 条目）
-2. 顺手清理 `~/.ssh/authorized_keys` 里遗留的垃圾行和已废弃的部署公钥（先备份）
+3. 顺手清理 `~/.ssh/authorized_keys` 里遗留的垃圾行和已废弃的部署公钥（先备份）
+
+真正的拉取动作在 `deploy/autopull.sh` 里：**成功静默，失败才写日志**
+（`/var/log/xiangwang-autodeploy.log`），另外每次运行都会刷新
+`/var/log/xiangwang-autodeploy.lastrun` —— 看这个文件的时间戳就知道定时任务有没在跑。
 
 想改成每分钟拉一次，编辑 `deploy/setup-autodeploy.sh` 顶部的 `INTERVAL="*"` 后重跑即可。
 
