@@ -334,20 +334,29 @@ command="cd /opt/xiangwang && git pull --ff-only",no-pty,no-port-forwarding,no-a
 
 这样即使私钥泄露，对方也只能触发一次 `git pull`，拿不到 shell、也不能转发端口。
 
-### 5. 不想用 Actions？服务器定时轮询
+### 5. 更省事的替代：服务器定时轮询（推荐给不想折腾网页配置的情况）
 
-零额外服务、不用开端口、不用配密钥，代价是最多延迟 5 分钟：
+上面 1~4 步要开 GitHub 网页、配密钥、点按钮。如果嫌麻烦，可以整条跳过 ——
+因为**本仓库是公开的**，服务器拉代码不需要任何凭据，直接让服务器自己定时来拉即可。
+代价是更新不是秒级，最多延迟 5 分钟。
+
+已经封装成一键脚本，在服务器上执行：
 
 ```bash
-cat > /opt/xiangwang-pull.sh <<'EOF'
-#!/bin/sh
-cd /opt/xiangwang || exit 1
-git pull -q --ff-only >> /var/log/xiangwang-pull.log 2>&1
-EOF
-chmod +x /opt/xiangwang-pull.sh
-( crontab -l 2>/dev/null; echo "*/5 * * * * /opt/xiangwang-pull.sh" ) | crontab -
-crontab -l          # 确认已写入
+cd /opt/xiangwang && git pull && bash deploy/setup-autodeploy.sh
 ```
+
+脚本做两件事：
+
+1. 装一条 `*/5 * * * * cd /opt/xiangwang && git pull --ff-only` 定时任务
+   （可重复执行，不会产生重复条目；也不会动你原有的其它 cron 条目）
+2. 顺手清理 `~/.ssh/authorized_keys` 里遗留的垃圾行和已废弃的部署公钥（先备份）
+
+想改成每分钟拉一次，编辑 `deploy/setup-autodeploy.sh` 顶部的 `INTERVAL="*"` 后重跑即可。
+
+> **提示**：如果手工写 crontab，务必确认 `*/5` 与后面的 `*` **之间有一个空格**。
+> 少一个空格写成 `*/5* * * *`，cron 会认不出来、静默不执行。
+> 本脚本用 `printf` 生成该行，就是为了避免这个手工粘贴的坑。
 
 > 两种方式都依赖同一件事：**服务器能自己访问 GitHub**。
 > 如果服务器连不上 GitHub，先把网络搞通，否则自动部署一定失败。
