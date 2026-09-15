@@ -2,18 +2,19 @@
 #
 # 象罔社团官网 —— 服务器自动部署一键配置
 #
-# 做三件事：
-#   1) 让本仓库改用 HTTP/1.1 访问 GitHub（国内服务器走 HTTP/2 常报
-#      "RPC failed; curl 16 Error in the HTTP2 framing layer"）
-#   2) 装一条定时任务：每 5 分钟自动从 GitHub 拉取代码
-#   3) 清理 SSH 授权文件里遗留的垃圾行 / 已废弃的部署密钥
+# 做四件事：
+#   1) 从 deploy/mirrors.txt 里找出一个能用的 GitHub 国内镜像，设为本仓库的 origin
+#      （这台服务器直连 github.com 会 TCP 超时，必须走镜像）
+#   2) 装一条定时任务：每 5 分钟自动通过镜像拉取代码
+#   3) 立刻拉取一次，当场验证这条路是通的
+#   4) 清理 SSH 授权文件里遗留的垃圾行 / 已废弃的部署密钥
 #
 # 用法（在服务器上执行，root 身份）：
 #   bash /opt/xiangwang/deploy/setup-autodeploy.sh
 #
 # 可以放心重复执行 —— 不会产生重复条目，也不会重复备份。
 #
-# 原理：本仓库是公开的，服务器拉代码不需要任何密码或密钥，
+# 原理：本仓库是公开的，拉代码不需要任何密码或密钥，
 #       所以这条定时任务不涉及任何凭据，删掉即彻底失效。
 
 set -u
@@ -21,6 +22,8 @@ set -u
 REPO_DIR="/opt/xiangwang"                  # 服务器上的仓库路径
 INTERVAL="*/5"                             # 拉取频率。改成 "*" 就是每分钟一次
 PULL_SCRIPT="$REPO_DIR/deploy/autopull.sh" # 每次真正被调用的小脚本
+MIRROR_FILE="$REPO_DIR/deploy/mirrors.txt" # 镜像清单
+OWNER_REPO="ikun1111111111/society.git"
 LOG_FILE="/var/log/xiangwang-autodeploy.log"
 
 echo "=============================================="
@@ -29,24 +32,46 @@ echo "=============================================="
 echo
 
 # ---------------------------------------------------------------
-# 第 1 步：改用 HTTP/1.1 访问 GitHub
+# 第 1 步：找一个能用的镜像
 # ---------------------------------------------------------------
-echo "[1/3] 调整 GitHub 访问方式"
+echo "[1/4] 探测可用的 GitHub 镜像"
 echo
 
-if [ -d "$REPO_DIR/.git" ]; then
-    git -C "$REPO_DIR" config http.version HTTP/1.1
-    echo "  已把本仓库的 git 传输改为 HTTP/1.1"
-    echo "  （可显著减少国内服务器拉取 GitHub 时的 RPC/HTTP2 报错）"
-else
-    echo "  警告：$REPO_DIR 不是 git 仓库，跳过。"
+if [ ! -f "$MIRROR_FILE" ]; then
+    echo "  错误：找不到 $MIRROR_FILE"
+    exit 1
 fi
+
+winner=""
+while IFS= read -r base; do
+    [ -z "$base" ] && continue
+    case "$base" in \#*) continue ;; esac
+
+    url="$base/$OWNER_REPO"
+    # timeout 防止像直连 GitHub 那样卡住两分钟
+    if timeout 30 git ls-remote "$url" HEAD >/dev/null 2>&1; then
+        winner="$url"
+        echo "  可用：$base"
+        break
+    fi
+    echo "  不通：$base"
+done < "$MIRROR_FILE"
+
+if [ -z "$winner" ]; then
+    echo
+    echo "  错误：所有镜像都不通。请编辑 $MIRROR_FILE 补充可用地址后重跑。"
+    exit 1
+fi
+
+git -C "$REPO_DIR" remote set-url origin "$winner"
+echo
+echo "  已把 origin 设为：$winner"
 echo
 
 # ---------------------------------------------------------------
 # 第 2 步：定时自动拉取
 # ---------------------------------------------------------------
-echo "[2/3] 配置定时任务（每 5 分钟自动拉取）"
+echo "[2/4] 配置定时任务（每 5 分钟自动拉取）"
 echo
 
 if ! command -v crontab >/dev/null 2>&1; then
@@ -79,13 +104,31 @@ crontab -l 2>/dev/null | sed 's/^/    /'
 echo
 echo "  说明：上面带 $REPO_DIR 的那一行就是本脚本装的；"
 echo "        带 @reboot 的那一行是你原有的（Cloudflare 隧道），没有动它。"
-echo "        拉取失败会记到 $LOG_FILE，成功不写日志。"
 echo
 
 # ---------------------------------------------------------------
-# 第 3 步：清理 SSH 授权文件
+# 第 3 步：立刻验证一次
 # ---------------------------------------------------------------
-echo "[3/3] 清理 SSH 授权文件"
+echo "[3/4] 立刻拉取一次，验证通路"
+echo
+
+bash "$PULL_SCRIPT" -v
+pull_rc=$?
+
+if [ "$pull_rc" -eq 0 ]; then
+    echo
+    echo "  验证通过 —— 当前线上代码版本：$(git -C "$REPO_DIR" log -1 --oneline)"
+else
+    echo
+    echo "  验证失败，详见：$LOG_FILE"
+    echo "  （定时任务已经装上了，它会每 5 分钟自动重试）"
+fi
+echo
+
+# ---------------------------------------------------------------
+# 第 4 步：清理 SSH 授权文件
+# ---------------------------------------------------------------
+echo "[4/4] 清理 SSH 授权文件"
 echo
 
 AK="/root/.ssh/authorized_keys"

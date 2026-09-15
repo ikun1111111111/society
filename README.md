@@ -334,38 +334,61 @@ command="cd /opt/xiangwang && git pull --ff-only",no-pty,no-port-forwarding,no-a
 
 这样即使私钥泄露，对方也只能触发一次 `git pull`，拿不到 shell、也不能转发端口。
 
-### 5. 更省事的替代：服务器定时轮询（推荐给不想折腾网页配置的情况）
+### 5. 本项目的实际方案：服务器定时轮询 + 国内镜像（推荐）
 
-上面 1~4 步要开 GitHub 网页、配密钥、点按钮。如果嫌麻烦，可以整条跳过 ——
-因为**本仓库是公开的**，服务器拉代码不需要任何凭据，直接让服务器自己定时来拉即可。
-代价是更新不是秒级，最多延迟 5 分钟。
+上面 1~4 步要开 GitHub 网页、配密钥、点按钮。本项目**没有走那条路**，原因有二：
 
-已经封装成一键脚本，在服务器上执行：
+1. 配 GitHub Secret 那套网页操作对非技术成员门槛偏高，容易卡住；
+2. 更关键的——**这台服务器直连 `github.com` 是 TCP 层超时**
+   （实测 `Failed to connect to github.com port 443 after 129843 ms: Connection timed out`），
+   所以任何"服务器自己 `git pull` GitHub"的方案都跑不通，调 HTTP/1.1 之类的参数也没用。
+
+因此改为：**服务器依次尝试 `deploy/mirrors.txt` 里的国内镜像**。
+
+一键脚本（在服务器上执行）：
 
 ```bash
-cd /opt/xiangwang && git pull && bash deploy/setup-autodeploy.sh
+bash /opt/xiangwang/deploy/setup-autodeploy.sh
 ```
 
-脚本做三件事：
+脚本做四件事：
 
-1. 把本仓库的 git 传输改成 **HTTP/1.1** —— 国内服务器拉 GitHub 走 HTTP/2 常报
-   `RPC failed; curl 16 Error in the HTTP2 framing layer`，这一步专门治它
+1. 逐个探测 `deploy/mirrors.txt` 里的镜像，把**第一个能用的**设为本仓库的 `origin`
+   （每个探测都带 `timeout 30`，不会再出现卡两分钟的情况）
 2. 装一条定时任务 `*/5 * * * * /opt/xiangwang/deploy/autopull.sh`
    （可重复执行，不会产生重复条目；也不会动你原有的其它 cron 条目）
-3. 顺手清理 `~/.ssh/authorized_keys` 里遗留的垃圾行和已废弃的部署公钥（先备份）
+3. **立刻拉取一次并当场汇报结果**，不用等 5 分钟才知道通不通
+4. 清理 `~/.ssh/authorized_keys` 里遗留的垃圾行和已废弃的部署公钥（先备份）
 
-真正的拉取动作在 `deploy/autopull.sh` 里：**成功静默，失败才写日志**
-（`/var/log/xiangwang-autodeploy.log`），另外每次运行都会刷新
-`/var/log/xiangwang-autodeploy.lastrun` —— 看这个文件的时间戳就知道定时任务有没在跑。
+`deploy/autopull.sh` 是 cron 真正调用的脚本：
 
-想改成每分钟拉一次，编辑 `deploy/setup-autodeploy.sh` 顶部的 `INTERVAL="*"` 后重跑即可。
+- 按 `mirrors.txt` 顺序逐个尝试 `git fetch`，谁先通用谁；全部失败才写日志
+- 成功后 `git reset --hard FETCH_HEAD`，让部署目录与仓库**严格一致**
+  （本目录是纯部署目标、不放手工修改的文件，所以这样安全）
+- **成功静默，失败才追加日志** `/var/log/xiangwang-autodeploy.log`（超 1MB 自动只留最后 200 行）
+- 每次运行都刷新心跳文件 `/var/log/xiangwang-autodeploy.lastrun`，
+  看它的时间戳就知道定时任务有没有在跑
+- 每个 fetch 都带 `timeout 90`，避免网络僵住时卡死
 
-> **提示**：如果手工写 crontab，务必确认 `*/5` 与后面的 `*` **之间有一个空格**。
-> 少一个空格写成 `*/5* * * *`，cron 会认不出来、静默不执行。
-> 本脚本用 `printf` 生成该行，就是为了避免这个手工粘贴的坑。
+手工跑一次看过程（会打印试了哪些镜像、成功没有）：
 
-> 两种方式都依赖同一件事：**服务器能自己访问 GitHub**。
-> 如果服务器连不上 GitHub，先把网络搞通，否则自动部署一定失败。
+```bash
+bash /opt/xiangwang/deploy/autopull.sh -v
+```
+
+想改成每分钟拉一次，编辑 `setup-autodeploy.sh` 顶部的 `INTERVAL="*"` 后重跑即可。
+
+> ⚠️ **关于镜像的取舍**：这些是第三方代理，只解决"连不上"的问题 ——
+> 它们能看到、也能改写传输内容。本项目是公开仓库、内容为社团官网，风险可接受；
+> 但若在意，正路是**用 Gitee（码云）做国内中转**：在 Gitee 导入本仓库，
+> 然后把 `mirrors.txt` 换成 Gitee 地址即可。以后要长期稳定运行，建议换过去。
+
+> **提示**：手工写 crontab 时务必确认 `*/5` 与后面的 `*` **之间有一个空格**。
+> 少一个空格写成 `*/5* * * *`，cron 会认不出来、静默不执行
+> （本项目就踩过这个坑）。脚本用 `printf` 生成该行，就是为了避开它。
+
+> 如果想改回 GitHub Actions（方案一），前提是**先把服务器到 GitHub 的网络打通**，
+> 否则工作流里那步 `git pull` 一样会失败。
 
 ---
 

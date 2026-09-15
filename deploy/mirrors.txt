@@ -1,0 +1,15 @@
+# GitHub 镜像源列表 —— 服务器从这些地址拉取代码，绕开直连 github.com 不通的问题
+#
+# 规则：
+#   - 每行一个前缀，脚本会自动在末尾拼上 /ikun1111111111/society.git
+#   - 从上到下依次尝试，第一个成功的就用
+#   - 以 # 开头的行是注释，会被忽略；空行也会被忽略
+#
+# 想加自己的镜像，直接在下面加一行即可。
+# 注意：这些是第三方代理，只解决"连不上"的问题；它们能看到也能改写传输内容。
+#       若在意这一点，正路是用 Gitee（码云）做国内中转，见 README 第九节。
+
+https://ghfast.top/https://github.com
+https://ghproxy.net/https://github.com
+https://gh-proxy.com/https://github.com
+https://gitclone.com/github.com
