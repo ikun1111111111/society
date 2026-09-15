@@ -66,7 +66,7 @@
             <p>这一版是前端演示，下面几枚是内置的测试邀请码，可以直接拿去把整个流程走一遍。</p>
             <div class="code-row account">
               <code>demo</code>
-              <span>测试账号 · 口令 <b>xw2026</b> · 管理员，任何设备都能进</span>
+              <span>测试账号 · 口令 <b>xw2026</b> · 管理员 · 仅本机（localhost）演示可用</span>
               <button type="button" data-fillacc="demo">一键进</button>
             </div>
             <div id="demoCodes"></div>
@@ -104,7 +104,7 @@
         <div class="aor"><i></i><span>或者</span><i></i></div>
         <button class="aguest" type="button" id="demoBtn">
           <span class="gd">🚪</span>
-          <span class="gt"><b>用测试账号一键进入</b><small>demo / xw2026 · 管理员 · 随时可进</small></span>
+          <span class="gt"><b>用测试账号一键进入</b><small>demo / xw2026 · 管理员 · 仅本机演示可用</small></span>
           <span class="ga">→</span>
         </button>
         <p class="aalt">还没有账号？<button type="button" data-goto="reg">用邀请码注册 →</button></p>
@@ -327,7 +327,17 @@
     flash('这个站还没有邮件服务。忘记密码就找发邀请码给你的那位伙伴，让他帮你重置；或者换个账号重新用邀请码注册。', 'info');
   });
 
-  /* ---------- 测试账号：一键进入 ---------- */
+  /* ---------- 测试账号：一键进入 ----------
+     预置测试账号只在本地演示时可用（判定逻辑见 assets/auth.js 的 DEMO_ON）。
+     公网访问时把登录页上的相关入口整个摘掉，免得把一个「公开口令的管理员
+     账号」摆在门口。注意：摘掉入口只是减少暴露面，不等于安全 —— 详见 README。 */
+  if (!A.demoAvailable()) {
+    ['.ab-note .code-row.account', '#demoBtn', '.auth-card .aor'].forEach(function (sel) {
+      var n = document.querySelector(sel);
+      if (n && n.parentNode) n.parentNode.removeChild(n);
+    });
+  }
+
   function demoEnter(btn, label) {
     clearErr(); flash('');
     var old = label || (btn ? btn.textContent : '');
@@ -342,7 +352,8 @@
         A.roleLabel(r.user.role) + ' · 内置测试账号 · 正在进入站点');
     });
   }
-  $('#demoBtn').addEventListener('click', function () { demoEnter(this); });
+  /* 元素可能已被上面的逻辑摘掉，取到再加监听 */
+  if ($('#demoBtn')) $('#demoBtn').addEventListener('click', function () { demoEnter(this); });
 
   /* ---------- 演示邀请码清单 ---------- */
   $('#noteBtn').addEventListener('click', function () { $('#noteBox').classList.toggle('open'); });

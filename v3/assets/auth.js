@@ -48,10 +48,24 @@
   ];
 
   /* ============================================================
-   * 一·二、预置测试账号
+   * 一·二、预置测试账号（默认只在本地可用）
    *   不走 localStorage 里的账号表 —— 换浏览器、换设备、清缓存都能直接登进来。
-   *   用户名 demo / 口令 xw2026（演示站公开口令，正式上线务必删掉这一整段）
+   *   用户名 demo / 口令 xw2026，身份是管理员。
+   *
+   *   ⚠️ 口令是写死在源码里的公开值，所以默认只在本机地址下启用：
+   *        localhost / 127.0.0.1 / ::1 / 直接双击打开的 file://
+   *   从公网（域名或 IP）访问时它自动失效，登录页上的相关入口也会一并摘掉。
+   *   真需要在线上临时演示：把下面的 DEMO_FORCE 改成 true 重新部署，
+   *   演示完立刻改回 false —— 否则等于把管理员口令挂在互联网上。
    * ============================================================ */
+  var DEMO_FORCE = false;
+
+  var DEMO_ON = DEMO_FORCE || (function () {
+    var h = String(w.location.hostname || '');
+    if (!h) return true;                       /* file:// 双击打开时 hostname 为空 */
+    return /^(localhost|127\.0\.0\.1|::1|\[::1\]|0\.0\.0\.0)$/.test(h);
+  })();
+
   var DEMO = {
     u: 'demo', pw: 'xw2026', name: '演示账号',
     role: 'admin', group: '演示账号', code: 'XW2026-DEMO'
@@ -230,7 +244,7 @@
       if (!/^[A-Za-z][A-Za-z0-9_]{2,19}$/.test(u))
         return resolve({ ok: false, field: 'u', msg: '账号 3-20 位，字母开头，只能含字母 / 数字 / 下划线' });
       if (u.toLowerCase() === DEMO.u)
-        return resolve({ ok: false, field: 'u', msg: '这个账号名被内置测试账号占用了，换一个吧' });
+        return resolve({ ok: false, field: 'u', msg: '这个账号名被系统保留了，换一个吧' });
 
       var name = String(o.name || '').trim();
       if (name.length < 1 || name.length > 20)
@@ -268,8 +282,10 @@
   function login(u, pw) {
     var name = String(u || '').trim().toLowerCase();
 
-    /* 预置测试账号优先：口令是公开的，不走本地哈希，所以任何浏览器都能进 */
-    if (name === DEMO.u) {
+    /* 预置测试账号优先：口令是公开的，不走本地哈希，所以任何浏览器都能进。
+       仅在本机地址（DEMO_ON）下生效 —— 公网访问时这段根本进不来，
+       demo 会退化成「没有这个账号」。 */
+    if (DEMO_ON && name === DEMO.u) {
       if (String(pw || '') !== DEMO.pw) {
         return Promise.resolve({ ok: false, field: 'pw', msg: '测试账号的口令是 ' + DEMO.pw });
       }
@@ -311,7 +327,16 @@
   }
 
   /* 一键进入：登录页那个按钮调的就是它 */
-  function demoLogin() { return login(DEMO.u, DEMO.pw); }
+  function demoLogin() {
+    if (!DEMO_ON) {
+      return Promise.resolve({ ok: false, field: 'u',
+        msg: '预置测试账号只在本地演示时可用。请用邀请码注册一个正式账号。' });
+    }
+    return login(DEMO.u, DEMO.pw);
+  }
+
+  /* 登录页用它决定要不要显示「一键进入」等入口 */
+  function demoAvailable() { return DEMO_ON; }
 
   /* ============================================================
    * 七、页面门禁
@@ -390,6 +415,7 @@
     roleLabel: roleLabel, fmtDate: fmtDate, esc: esc,
     /* 预置测试账号 */
     DEMO: DEMO, demoLogin: demoLogin, ensureDemoUser: ensureDemoUser,
+    demoAvailable: demoAvailable,
     /* 门禁 */
     gate: gate, requireRole: requireRole, nextParam: nextParam
   };

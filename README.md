@@ -10,211 +10,227 @@
 
 ```
 society/
-├─ v3/                  ← ★ 构建产物：真正要部署的静态站（纯 HTML/CSS/JS）
-│  ├─ index.html        首页
-│  ├─ login.html        登录 / 注册（唯一不设门禁的页面）
-│  ├─ area.html         成员专区（内部页）
-│  ├─ members.html      成员总览   → member-*.html（19 位成员独立详情页）
-│  ├─ projects.html     作品列表   → work-w1 ~ w6.html
-│  ├─ life.html         社团动态   → life-a1 ~ a6.html
-│  ├─ recruit?          → job-j1 ~ j4.html（岗位详情）
-│  └─ assets/           site.css / site.js / auth.css / auth.js / logo.png
+├─ v3/                      ← ★ 构建产物：真正要部署的静态站（纯 HTML/CSS/JS）
+│  ├─ index.html            首页
+│  ├─ login.html            登录 / 注册（唯一不设门禁的页面）
+│  ├─ area.html             成员专区（内部页）
+│  ├─ members.html          成员总览   → member-*.html（18 位成员独立详情页）
+│  ├─ projects.html         作品列表   → work-w1 ~ w6.html
+│  ├─ life.html             社团动态   → life-a1 ~ a6.html
+│  ├─ job-j1 ~ j4.html      招新岗位详情
+│  └─ assets/               site.css / site.js / auth.css / auth.js / logo.png
 │
-├─ src/                 ← TypeScript 源码（首页交互：粒子星域/打字机/3D 倾斜/数字滚动…）
-├─ redesign/            首页重设计稿
-├─ dist/                早期 v2 构建产物（保留备查，不参与部署）
-├─ build_v3.py          ★ v3 静态站生成器（数据 + 模板都在里面）
-├─ deploy/nginx.conf    Nginx 站点配置（已开 gzip / 缓存 / 安全头）
-├─ Dockerfile           静态站镜像（nginx:alpine）
+├─ src/                     TypeScript 源码（首页交互：粒子星域/打字机/3D 倾斜/数字滚动…）
+├─ redesign/                首页重设计稿
+├─ dist/                    早期 v2 构建产物（保留备查，不参与部署）
+├─ build_v3.py              ★ v3 静态站生成器（数据 + 模板都在里面）
+├─ deploy/nginx.conf        Nginx 站点配置（给「宿主机直装 Nginx」那条路用）
+├─ Dockerfile               静态站镜像（可选，见第五节备注）
+├─ .gitattributes           强制 LF 换行（服务器是 Linux，别让 CRLF 漏进去）
 └─ .gitignore
 ```
 
-**技术形态：零构建依赖的纯静态站。** 所有资源都是相对路径引用，因此既能部署在域名根目录，也能放在子目录（如 `/club/`）下。
+**技术形态：零构建依赖的纯静态站。** 所有资源都用相对路径引用，因此**既能部署在域名根目录，也能放在子路径（如 `/club/`）下**。
 
 ---
 
 ## 二、本地预览
 
-任选一种：
-
 ```bash
-# Python 自带（需在 v3 同级目录执行）
-cd v3 && python -m http.server 8080
-
-# 或 Node
-npx serve v3 -l 8080
+# 任选一种（都要在仓库根目录执行）
+python -m http.server 8777 --directory v3
+npx serve v3 -l 8777
 ```
 
-浏览器打开 http://localhost:8080/login.html
+浏览器打开 http://localhost:8777/login.html
 
-**演示账号**：用户名 `demo`，口令 `xw2026`（内置邀请码 `XW2026-DEMO` 亦可直接注册）。
+**演示账号**：用户名 `demo`，口令 `xw2026`，身份是管理员。
 
-> ⚠️ 正式上线前务必删掉 `v3/assets/auth.js` 里的 `DEMO` 预置账号段，否则任何人可凭公开口令进后台。
+> ⚠️ 这个预置账号**只在本地地址下可用**（`localhost` / `127.0.0.1` / 直接双击打开的 `file://`）。
+> 从公网域名或 IP 访问时它自动失效，登录页上的「一键进入」入口也会被摘掉 ——
+> 详见第七节，以及 `v3/assets/auth.js` 里的 `DEMO_ON` 开关。
 
 ---
 
 ## 三、重新生成站点
 
-页面的文案、成员、作品、岗位等数据都写在 `build_v3.py` 顶部的数据区（`WORKS` / `MEMBERS` / `LIFE` / `JOBS`），改完重跑即可全量重生成 `v3/`：
+页面的文案、成员、作品、岗位等数据都写在 `build_v3.py` 顶部的数据区（`WORKS` / `MEMBERS` / `ACTIVITIES` / `JOBS`），改完重跑即可全量重生成 `v3/`：
 
 ```bash
 python build_v3.py
 ```
 
-`build_v3.py` 顶部还有一个准入开关：
+`build_v3.py` 顶部有两个开关：
 
 ```python
 SITE_GATE = True   # True = 全站门禁；False = 只锁「成员专区」area.html
 ```
 
+> **改文案请改生成器，不要直接改 `v3/*.html`** —— 重跑会全部覆盖。
+> 例外：`v3/assets/` 下的 css / js 是手写的静态资源，不由生成器产出，直接改即可。
+
 ---
 
-## 四、部署到阿里云 ECS（推荐：Nginx）
+## 四、部署到阿里云 ECS（Docker 方式 · 推荐 · 已实测）
+
+适合服务器上**已经装了 Docker**的情况。好处是不用在宿主机装任何东西、不碰系统配置、
+`--restart always` 开机自启，而且**把仓库目录直接挂进容器**，以后更新只需一条 `git pull`。
 
 ### 0. 前置
 
-| 项 | 要求 |
+| 项 | 说明 |
 |---|---|
-| 实例 | 阿里云 ECS，1 核 2G 起（静态站 1 核 1G 足够），系统选 **Ubuntu 22.04 / Alibaba Cloud Linux 3** |
-| 带宽 | 按量或 1~3 Mbps 固定带宽均可 |
-| 安全组 | 入方向放行 **22（SSH）**、**80（HTTP）**、**443（HTTPS）** |
-| 域名 | 可选。有域名则解析 A 记录到 ECS 公网 IP；无域名可先用 IP 直接访问 |
+| 实例 | 阿里云 ECS，1 核 1G 起足够（静态站不吃资源） |
+| 系统 | Ubuntu 22.04 已实测通过 |
+| 安全组 | 入方向放行 **22（SSH）** + **你要用的那个端口** |
+| 域名 | 不需要。**用「IP + 端口」访问完全不涉及备案** |
 
-> 不要用普通云盘挂载点的奇怪路径，统一用 `/var/www/`。
-
-### 1. 装环境
+**先挑一个没被占用的端口**（示例用 `8085`）：
 
 ```bash
-# 登录
-ssh root@<你的公网IP>
-
-# Alibaba Cloud Linux / CentOS 系
-dnf install -y nginx git        # 若报错改用 yum install -y nginx git
-
-# Ubuntu / Debian 系
-apt update && apt install -y nginx git
+ss -lntp        # 看 8085 有没有人监听；被占了就换一个
 ```
+
+### 1. 安全组放行端口
+
+ECS 控制台 → 实例 → 安全组 → 配置规则 → **入方向** → 手动添加：
+
+| 项 | 填 |
+|---|---|
+| 协议类型 | 自定义 TCP |
+| 端口范围 | `8085/8085` |
+| 授权对象 | `0.0.0.0/0` |
+
+**不加这条，服务器本机能访问、外面永远连不上。**
 
 ### 2. 拉代码
 
 ```bash
-# 公开仓库
-git clone https://github.com/ikun1111111111/society.git /opt/society
-
-# 私有仓库：改用带 token 的地址（见第五节）
-git clone https://<用户名>:<PersonalAccessToken>@github.com/ikun1111111111/society.git /opt/society
+apt install -y git        # 没有才需要
+git clone https://github.com/ikun1111111111/society.git /opt/xiangwang
 ```
 
-### 3. 把静态站放到网站根目录
+> 私有仓库改用带 token 的地址：
+> `https://<用户名>:<PersonalAccessToken>@github.com/ikun1111111111/society.git`
+
+### 3. 起容器
 
 ```bash
-mkdir -p /var/www/xiangwang
-cp -r /opt/society/v3/. /var/www/xiangwang/
-
-# 目录归属（nginx 默认以 nginx 用户跑，SELinux 系统需开 httpd 上下文）
-chown -R nginx:nginx /var/www/xiangwang     # Ubuntu 下用户名为 www-data
-restorecon -Rv /var/www/xiangwang 2>/dev/null || true
+docker run -d --name xiangwang-site --restart always \
+  -p 8085:80 \
+  -v /opt/xiangwang/v3:/usr/share/nginx/html:ro \
+  nginx:alpine
 ```
 
-### 4. 配 Nginx
+关键点：**挂载的是仓库里的 `v3/` 目录，不是打包进镜像**。所以改文件立刻生效，不用重建容器。
+
+### 4. 验证
 
 ```bash
-cp /opt/society/deploy/nginx.conf /etc/nginx/conf.d/xiangwang.conf
-# 若有域名，把 server_name _; 改成 server_name club.example.com;
-
-nginx -t                 # 语法检查，必须 OK
-systemctl enable --now nginx
-systemctl reload nginx
+docker ps --filter name=xiangwang-site          # 状态应为 Up
+curl -I http://127.0.0.1:8085/                  # 必须返回 HTTP/1.1 200 OK
+systemctl is-enabled docker                     # 确认开机自启，否则重启后站点不会自己起来
 ```
 
-阿里云 Linux / CentOS 上 `/etc/nginx/nginx.conf` 默认已 `include conf.d/*.conf`；**Ubuntu 默认站点在 `sites-enabled/`，需要额外禁用默认站**：
+然后浏览器访问 `http://<服务器公网IP>:8085/login.html`。
+
+> **如果 `curl` 返回 403 Forbidden**：说明挂载点里是空的 —— 检查 `/opt/xiangwang/v3/` 里有没有 `index.html`。
+> Docker 在 bind mount 的路径不存在时会**静默建一个空目录**，把镜像自带的首页盖掉，于是 403。
+> 补上 `git clone` 即可，不用重启容器。
+
+### 5. 以后更新 —— 只有一条命令
 
 ```bash
-rm -f /etc/nginx/sites-enabled/default
-systemctl reload nginx
+cd /opt/xiangwang && git pull
 ```
 
-### 5. 访问验证
+挂载是实时的，文件一更新网站就是新的。**不用重建容器、不用 reload。**
 
-浏览器打开 `http://<公网IP>/` ，应自动跳到 `login.html`。
-用演示账号登录后能看到首页、成员、作品、动态——即部署成功。
-
-### 6. 上 HTTPS（有域名时强烈建议）
+### 6. 常用运维
 
 ```bash
-# Ubuntu
-apt install -y certbot python3-certbot-nginx
-# Alibaba Cloud Linux
-dnf install -y certbot python3-certbot-nginx
-
-certbot --nginx -d club.example.com     # 自动改 nginx 配置并配置 90 天续期
+docker logs xiangwang-site --tail 50     # 看日志
+docker restart xiangwang-site            # 重启
+docker rm -f xiangwang-site              # 删掉（不影响别的容器）
 ```
 
-阿里云域名需先完成 **ICP 备案**，否则 80/443 会被拦截。测试阶段可直接用公网 IP + 端口访问。
-
-### 7. 后续更新流程
-
-```bash
-cd /opt/society
-git pull
-cp -r v3/. /var/www/xiangwang/
-chown -R nginx:nginx /var/www/xiangwang
-systemctl reload nginx
-```
+> **`Dockerfile` 那套 `docker build` 的写法本项目暂时不用**：构建镜像会把静态文件固化进镜像，
+> 每次改文案都要重新 build + 重建容器，比挂载目录麻烦。留着备查而已。
 
 ---
 
-## 五、部署到阿里云 ECS（Docker 方式，更省事）
+## 五、部署到阿里云 ECS（宿主机直装 Nginx）
 
-服务器上装好 Docker 后，只需三条命令：
+服务器上**没有 Docker**、或者本来就用 Nginx 托管别的站时用这条。
 
 ```bash
+# 1. 装环境（Ubuntu）
+apt update && apt install -y nginx git
+
+# 2. 拉代码
 git clone https://github.com/ikun1111111111/society.git /opt/society
-cd /opt/society
-docker build -t xiangwang-site .
-docker run -d --name xiangwang --restart always -p 80:80 xiangwang-site
+
+# 3. 静态站放到网站目录
+mkdir -p /var/www/xiangwang
+cp -r /opt/society/v3/. /var/www/xiangwang/
+chown -R www-data:www-data /var/www/xiangwang     # CentOS/阿里云 Linux 用 nginx，并补一条 restorecon
+
+# 4. 配 Nginx
+cp /opt/society/deploy/nginx.conf /etc/nginx/conf.d/xiangwang.conf
+nginx -t && systemctl reload nginx
 ```
 
-镜像内部已自带 Nginx 与 `deploy/nginx.conf`，`/usr/share/nginx/html` 就是 `v3/` 的内容。
+`deploy/nginx.conf` 里 `listen 80;`、`server_name _;`、`root /var/www/xiangwang;` 按需改：
 
-更新：
+- **这台机器上还有别的站** → 把 `server_name _;` 改成真实域名。
+  `_` 是「兜底站点」，会接住所有没匹配上的请求；**一台机器上只能有一个兜底，多了会互相覆盖。**
+- **只想挂在子路径**（`http://IP/club/`）→ 别单独写 server，把这段加进已有的 80 端口 server 里：
 
-```bash
-cd /opt/society && git pull
-docker build -t xiangwang-site . && docker stop xiangwang && docker rm xiangwang
-docker run -d --name xiangwang --restart always -p 80:80 xiangwang-site
+```nginx
+location ^~ /club/ { alias /var/www/xiangwang/; index index.html; }
+location = /club { return 301 /club/; }
 ```
 
-> 阿里云镜像仓库（ACR）可选：把镜像推到 ACR，服务器改 `docker pull` 拉取，适合多台服务器。
+（本站在子路径下能正常工作：所有跳转都是相对路径，`next` 回跳参数也只接受裸文件名。）
+
+**常见坑**：Ubuntu 上 `/etc/nginx/sites-enabled/default` 会抢在前面，需要 `rm -f /etc/nginx/sites-enabled/default`；
+改任何配置前先 `nginx -t`，语法错时 `reload` 会拒绝并保留旧配置继续跑；**用 `reload` 不用 `restart`**（restart 会瞬断所有站）。
 
 ---
 
 ## 六、部署到阿里云 OSS（无服务器，最便宜）
 
-适合「只要一个能访问的网址，不想维护服务器」：
-
 1. OSS 控制台建 Bucket，**读写权限设为公共读**。
-2. 基础设置 → 静态页面：默认首页 `index.html`，子目录首页 `index.html`；**错误文档填 `index.html`**（站点是多页结构，避免空白 404）。
+2. 基础设置 → 静态页面：默认首页 `index.html`，子目录首页 `index.html`；**错误文档填 `index.html`**（多页结构，避免空白 404）。
 3. 上传 `v3/` 全部文件到 Bucket 根目录（保持 `assets/` 层级）。
 4. 用 Bucket 绑定的外网域名访问。
 
-**注意**：OSS 静态托管无法给单个目录加访问控制，`v3/assets/auth.js` 的门禁逻辑在浏览器里跑，**别人可以直接访问 `member-*.html` 的 URL**。若要真拦人，必须走第七节的后端方案。
+**注意**：OSS 静态托管**没法给目录做访问控制**，`auth.js` 的门禁在浏览器里跑，别人直接访问 `member-*.html` 的 URL 就能看。见下节。
 
 ---
 
-## 七、⚠️ 上线安全说明（重要）
+## 七、⚠️ 上线安全说明（请认真读）
 
-当前 `v3/assets/auth.js` 是**纯前端准入**：邀请码表、账号表、会话全部存在浏览器 `localStorage` 里。
+### 1. 已做的防护
 
-这意味着：
+`v3/assets/` 里的 `auth.js` 是**纯前端准入**：邀请码表、账号表、会话全部存在浏览器 `localStorage` 里。
+其中预置的 `demo` 管理员账号（公开口令）已加门禁 —— **只在 `localhost` / `127.0.0.1` / `file://` 下启用**，
+公网访问时自动失效，登录页的相关入口也会一并摘掉。开关在 `auth.js` 顶部的 `DEMO_FORCE`。
 
-- 任何人打开 F12 控制台就能看到全部邀请码；
-- 任何人手写一条 `localStorage` 记录就能伪造管理员会话；
-- 直接请求 `member-xxx.html` 等 URL 可绕过页面门禁。
+### 2. 但它仍然不是「安全」
 
-它适合**演示、内部看起来正规的入口**，**不适合存放任何真实敏感信息**。
+**必须清楚：这类前端门禁拦不住真正想进来的人。** 原因：
 
-要真正拦住人，需要把三个接口搬到后端：
+- 邀请码表明文写在 `auth.js` 里 → 打开 F12 就能看到全部邀请码（包括 `XW2026-ADMIN` 这种管理员码）；
+- 手写一条 `localStorage` 记录就能伪造管理员会话，无需任何口令；
+- 直接请求 `member-xxx.html` 等 URL 就能绕过页面门禁。
+
+**结论：它适合「演示」和「让入口看起来正规」，不适合存放任何真实敏感信息**
+（学号、手机号、成绩、内部文档、密钥等一律不要放）。
+
+### 3. 真要拦住人，就得有后端
+
+把三个接口搬到服务端，邀请码和账号落库：
 
 ```
 POST /api/register  { code, name, u, pw }   → 后端校验邀请码，签发 token
@@ -222,20 +238,24 @@ POST /api/login     { u, pw }               → 校验口令，返回 token
 GET  /api/me                                → 校验 token，未登录返回 401
 ```
 
-`auth.js` 顶部的注释里已写好迁移方案：只需把前端的 `checkCode() / register() / login()` 换成 `fetch` 调用，其余页面逻辑不用动。后端可用 Node（Express/Fastify）或 Python（FastAPI）实现，数据落 SQLite / RDS，再用 Nginx 反代 `/api` 到本机端口。
+`auth.js` 头部的注释里已写清迁移思路：把前端的 `checkCode() / register() / login()` 换成 `fetch` 调用，
+其余页面逻辑基本不用动。后端可用 Node（Express / Fastify）或 Python（FastAPI），
+数据落 SQLite / RDS，再让 Nginx 或容器反代 `/api` 到本机端口。
 
 ---
 
-## 八、常见问题
+## 八、常见问题（含实际踩过的坑）
 
 | 现象 | 原因 / 解法 |
 |---|---|
-| 打开是 Nginx 默认欢迎页 | 默认站点没禁用（Ubuntu）或 `conf.d` 未 include |
-| 页面能开但样式全丢 | 只上传了 HTML 没上传 `assets/`，或 `root` 指到了上一层 |
-| 一直跳回登录页 | 浏览器禁用了 localStorage（隐私模式 / iframe 里嵌）；或域名换了但旧会话不匹配 |
-| 403 Forbidden | 文件权限或 SELinux 上下文不对：`chown -R nginx:nginx` + `restorecon -Rv` |
-| 国内访问 80 端口被重置 | 域名未备案，改用 IP 访问或先完成 ICP 备案 |
-| `git clone` 卡住 / 连不上 | 服务器访问 GitHub 慢，用 `git clone` 加 `-c http.proxy=` 或改走 Gitee 镜像中转 |
+| 浏览器报 `HTTP ERROR 502`，页面是 Chrome 自己的错误模板 | **多半是你本机代理（clash 等）返回的**，不是服务器问题。判据：代理报错会显示 Chrome 自己的错误页；源站的 502 会显示源站自己的正文。关掉系统代理，或本机 `curl.exe -I --noproxy "*" http://<IP>:<端口>/` 绕过代理直连验证 |
+| 访问一直转圈、最后超时 | 安全组没放行该端口 |
+| `403 Forbidden`，但 `Server: nginx` 有响应 | 挂载点/网站根目录里是空的（没 `git clone`，或只传了 HTML 没传 `assets/`） |
+| `git clone` 报 `destination path already exists and is not an empty directory` | 目标目录被 Docker 之类的程序抢先建了个空目录。换个路径克隆，或确认目录内容为空后 `rmdir` 掉（`rmdir` 只删空目录，非空会拒绝，比 `rm -rf` 安全） |
+| 页面能开但样式全丢 | 只传了 HTML 没传 `assets/`，或 `root` 指到了上一层 |
+| 一直跳回登录页 | 浏览器禁用了 localStorage（无痕模式），或换了访问地址导致旧会话不匹配（会话按「协议+域名+端口」隔离） |
+| 文件名/内容出现奇怪的 `^M` | 换行被转成了 CRLF。本仓库 `.gitattributes` 已设 `* text=auto eol=lf`，别把该文件删掉 |
+| 服务器上 `git clone` 卡住 | 服务器访问 GitHub 慢，配置代理或用 Gitee 镜像中转 |
 
 ---
 
