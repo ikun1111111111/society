@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>象罔社团 · 把想法编译成现实</title>
+  <meta name="description" content="象罔社团官方网站：招生信息、招聘信息、作品展示、成员风采">
+  <link rel="icon" type="image/png" href="./assets/logo.png">
+  <link rel="stylesheet" href="./bundle.css">
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="aurora a1"></div>
+  <div class="aurora a2"></div>
+  <div class="scroll-progress" id="progress"></div>
+
+  <nav id="nav">
+    <div class="logo"><img class="logo-img" src="./assets/logo.png" alt="象罔社团 logo">象罔社团<span class="path">~/官网</span></div>
+    <ul class="nav-links">
+      <li><a href="#about"><span class="no">01</span>关于</a></li>
+      <li><a href="#recruit"><span class="no">02</span>招生</a></li>
+      <li><a href="#jobs"><span class="no">03</span>招聘</a></li>
+      <li><a href="#works"><span class="no">04</span>作品</a></li>
+      <li><a href="#members"><span class="no">05</span>成员</a></li>
+      <li><a href="#contact"><span class="no">06</span>联系</a></li>
+    </ul>
+    <a class="nav-cta" href="#recruit">加入我们_</a>
+  </nav>
+
+  <header class="hero">
+    <p class="hero-tag">庄子·天地：黄帝遗玄珠，使知索之、离朱索之皆不得，象罔得之</p>
+    <h1>把想法<span class="grad">编译</span>成现实<br>欢迎来到<span class="grad">象罔</span>社团<span class="cursor" id="cursor"></span></h1>
+    <p class="hero-sub"><span id="typewriter"></span><span class="tw-caret">▍</span></p>
+    <div class="hero-btns">
+      <a class="btn btn-primary" href="#recruit">立即报名 →</a>
+      <a class="btn btn-ghost" href="#works">查看作品</a>
+    </div>
+    <div class="hero-card" id="tilt-hero">
+      <div class="bar">
+        <i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>
+        <span class="bar-title">club.config.ts</span>
+      </div>
+      <pre><span class="cm">// 由全体成员共同维护</span>
+<span class="kw">export const</span> <span class="fn">club</span> = {
+  name: <span class="str">"象罔社团"</span>,
+  motto: <span class="str">"象罔得之 · 无心而得"</span>,
+  since: <span class="str">"20XX"</span>,
+  skills: [<span class="str">"Web"</span>, <span class="str">"AI"</span>, <span class="str">"开源"</span>],
+  members: <span class="str">"120+"</span>,
+  status: <span class="str">"招新中 ✓"</span>
+} <span class="kw">as const</span>;</pre>
+    </div>
+    <p class="scroll-hint">↓ 向下滚动，精彩开始</p>
+  </header>
+
+  <div class="marquee-wrap">
+    <div class="marquee" id="marquee"></div>
+  </div>
+
+  <section id="about">
+    <div class="sec-head reveal">
+      <p class="label">ABOUT US</p>
+      <h2>我们做什么</h2>
+      <p>四个方向自由选择，零基础有带教，有基础有项目。<span class="dim">// 占位内容：之后替换成社团真实介绍</span></p>
+    </div>
+    <div class="grid-4">
+      <div class="dir-card reveal" data-tilt>
+        <div class="icon">🌐</div>
+        <h3>Web 开发</h3>
+        <p>前端页面、后端服务、全栈项目，做出真正能上线给所有人用的网站。</p>
+        <span class="tag">Vue / React / Node</span>
+      </div>
+      <div class="dir-card reveal" data-tilt>
+        <div class="icon">🤖</div>
+        <h3>人工智能</h3>
+        <p>从调包到炼丹，机器学习入门、大模型应用开发，紧跟 AI 浪潮。</p>
+        <span class="tag">Python / LLM</span>
+      </div>
+      <div class="dir-card reveal" data-tilt>
+        <div class="icon">🏆</div>
+        <h3>竞赛战队</h3>
+        <p>程序设计竞赛、创新创业大赛，组队刷题、一起拿奖。</p>
+        <span class="tag">ACM / 蓝桥杯</span>
+      </div>
+      <div class="dir-card reveal" data-tilt>
+        <div class="icon">🚀</div>
+        <h3>开源实践</h3>
+        <p>参与真实开源项目，学习 Git 协作，给 GitHub 简历添上第一笔绿。</p>
+        <span class="tag">Git / Linux</span>
+      </div>
+    </div>
+    <div style="height:48px"></div>
+    <div class="stats reveal" id="stats">
+      <div class="stat"><b><span data-count="120">0</span><small>+</small></b><span>在册成员</span></div>
+      <div class="stat"><b><span data-count="30">0</span><small>+</small></b><span>完成项目</span></div>
+      <div class="stat"><b><span data-count="15">0</span><small>项</small></b><span>竞赛奖项</span></div>
+      <div class="stat"><b><span data-count="98">0</span><small>%</small></b><span>就业 / 升学</span></div>
+    </div>
+  </section>
+
+  <section id="recruit" class="band">
+    <div class="sec-head reveal">
+      <p class="label">RECRUITMENT</p>
+      <h2>招生信息 <span class="live-dot"></span><span class="pill">2026 秋季招新中</span></h2>
+      <p>面向全校，不限专业、不限年级。<span class="dim">// 招新时间与批次之后按社团真实安排更新</span></p>
+    </div>
+    <div class="split">
+      <div class="info-panel reveal" data-tilt>
+        <h3>报名要求</h3>
+        <ul>
+          <li><b>零基础可入</b>——只要肯学，我们从头带</li>
+          <li><b>不限专业</b>——技术面前人人平等</li>
+          <li><b>每周至少 4 小时</b>——投入才有产出</li>
+          <li><b>一台自己的电脑</b>——配置不限，热爱不限</li>
+        </ul>
+        <h3 style="margin-top:30px">你将获得</h3>
+        <ul>
+          <li><b>学长学姐带教</b>——少走两年弯路</li>
+          <li><b>真实项目经验</b>——简历不再空白</li>
+          <li><b>内推机会</b>——毕业直通合作企业</li>
+        </ul>
+      </div>
+      <div class="info-panel reveal">
+        <h3>招新时间线</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <p class="when">09.15 - 09.30</p>
+            <p class="what">线上报名<small>扫码或通过页面底部 QQ 群加入</small></p>
+          </div>
+          <div class="tl-item">
+            <p class="when">10.01 - 10.10</p>
+            <p class="what">宣讲会 & 面谈<small>地点待定 · 占位信息</small></p>
+          </div>
+          <div class="tl-item">
+            <p class="when">10.11 - 10.20</p>
+            <p class="what">新手任务<small>一个小作业，看看热情和潜力</small></p>
+          </div>
+          <div class="tl-item">
+            <p class="when">10.25</p>
+            <p class="what">公布名单，正式加入<small>欢迎仪式 & 首次组会</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="jobs">
+    <div class="sec-head reveal">
+      <p class="label">CAREERS</p>
+      <h2>招聘信息</h2>
+      <p>社团与合作企业的实习、校招内推通道。<span class="dim">// 之后接入真实岗位与内推联系方式</span></p>
+    </div>
+    <div class="job-list">
+      <a class="job reveal" href="detail.html?type=job&amp;id=j1">
+        <span class="role">前端开发实习生</span>
+        <span class="desc">合作企业 · 参与真实产品迭代 · 大二大三优先 · 占位</span>
+        <span class="meta open">● 报名中</span>
+        <span class="arrow">-&gt;</span>
+      </a>
+      <a class="job reveal" href="detail.html?type=job&amp;id=j2">
+        <span class="role">后端开发实习生</span>
+        <span class="desc">合作企业 · Java / Go 技术栈 · 有社团项目经验者优先 · 占位</span>
+        <span class="meta open">● 报名中</span>
+        <span class="arrow">-&gt;</span>
+      </a>
+      <a class="job reveal" href="detail.html?type=job&amp;id=j3">
+        <span class="role">算法实习生（AI 方向）</span>
+        <span class="desc">合作实验室 · 机器学习 / 大模型应用 · 占位</span>
+        <span class="meta soon">● 即将开放</span>
+        <span class="arrow">-&gt;</span>
+      </a>
+      <a class="job reveal" href="detail.html?type=job&amp;id=j4">
+        <span class="role">社团项目组 · 核心开发</span>
+        <span class="desc">校内 · 参与官网 / 小程序等自研项目，优秀者直推企业 · 占位</span>
+        <span class="meta open">● 长期招募</span>
+        <span class="arrow">-&gt;</span>
+      </a>
+    </div>
+  </section>
+
+  <section id="works" class="band">
+    <div class="sec-head reveal">
+      <p class="label">PORTFOLIO</p>
+      <h2>作品展示</h2>
+      <p>成员与项目组的作品集入口。<span class="dim">// 占位作品卡：之后换成真实项目截图与链接</span></p>
+    </div>
+    <div class="works">
+      <a class="work reveal" href="detail.html?type=work&amp;id=w1" data-tilt>
+        <div class="cover c1">🛰️</div>
+        <div class="body">
+          <h3>校园二手交易平台 <span>Web</span></h3>
+          <p>全栈实战项目：Vue + Node + MySQL，已上线服务全校区同学。</p>
+          <p class="stack">TypeScript · Vue3 · Node.js</p>
+        </div>
+      </a>
+      <a class="work reveal" href="detail.html?type=work&amp;id=w2" data-tilt>
+        <div class="cover c2">🧠</div>
+        <div class="body">
+          <h3>AI 校园问答助手 <span>AI</span></h3>
+          <p>基于大模型 + 校园知识库的智能问答机器人，接入新生群。</p>
+          <p class="stack">Python · LLM · RAG</p>
+        </div>
+      </a>
+      <a class="work reveal" href="detail.html?type=work&amp;id=w3" data-tilt>
+        <div class="cover c3">🎮</div>
+        <div class="body">
+          <h3>像素风小游戏 <span>Game</span></h3>
+          <p>48 小时 Game Jam 产物，浏览器即可游玩，收获 1k+ 星标。</p>
+          <p class="stack">Canvas · GameLoop</p>
+        </div>
+      </a>
+      <a class="work reveal" href="detail.html?type=work&amp;id=w4" data-tilt>
+        <div class="cover c4">📊</div>
+        <div class="body">
+          <h3>课表可视化工具 <span>Tool</span></h3>
+          <p>一键导入教务系统课表，自动生成周视图与冲突检测。</p>
+          <p class="stack">TypeScript · ECharts</p>
+        </div>
+      </a>
+      <a class="work reveal" href="detail.html?type=work&amp;id=w5" data-tilt>
+        <div class="cover c5">🛡️</div>
+        <div class="body">
+          <h3>CTF 校队训练平台 <span>Sec</span></h3>
+          <p>自建靶机与题库，每周内训，备战全国大学生网络安全赛。</p>
+          <p class="stack">Docker · Go</p>
+        </div>
+      </a>
+      <a class="work reveal works-more" href="#contact" data-tilt>
+        <div class="cover c-more">＋</div>
+        <div class="body">
+          <h3>更多作品持续更新 <span>TODO</span></h3>
+          <p>你的项目，也许就是下一张卡片。</p>
+          <p class="stack">等你来写 · await you</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section id="members">
+    <div class="sec-head reveal">
+      <p class="label">MEMBERS</p>
+      <h2>成员风采 <span class="pill">2026 秋季 · 17 人已就位</span></h2>
+      <p>新伙伴已集结完毕。<span class="dim">// 隐私提示：本页仅展示姓名·学院·编号，其他个人信息不上网</span></p>
+    </div>
+    <div class="members-grid">
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L1"><div class="member-avatar mv1">陈</div><h3>陈明睿</h3><p>雷丁学院 · 大气科学</p><span class="member-no">L1</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L2"><div class="member-avatar mv2">虞</div><h3>虞越</h3><p>软件学院 · 软件工程</p><span class="member-no">L2</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L4"><div class="member-avatar mv3">蔡</div><h3>蔡泉佑</h3><p>雷丁学院 · 数据科学与大数据技术</p><span class="member-no">L4</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L5"><div class="member-avatar mv4">郑</div><h3>郑子鑫</h3><p>网络空间安全学院 · 网络空间安全</p><span class="member-no">L5</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L6"><div class="member-avatar mv5">朱</div><h3>朱芫枚</h3><p>计算机/软件学院 · 软件工程</p><span class="member-no">L6</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L7"><div class="member-avatar mv1">蔡</div><h3>蔡僮</h3><p>沃特福德学院 · 电气工程及其自动化</p><span class="member-no">L7</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L8"><div class="member-avatar mv2">陈</div><h3>陈佳敏</h3><p>计算机学院 · 计算机科学与技术</p><span class="member-no">L8</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L9"><div class="member-avatar mv3">陈</div><h3>陈致明</h3><p>人工智能学院 · 人工智能</p><span class="member-no">L9</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L10"><div class="member-avatar mv4">余</div><h3>余思雨</h3><p>艺术学院 · 数字媒体艺术</p><span class="member-no">L10</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L11"><div class="member-avatar mv5">饶</div><h3>饶宇轩</h3><p>计算机与软件学院 · 软件工程</p><span class="member-no">L11</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L12"><div class="member-avatar mv1">何</div><h3>何泓全</h3><p>网络空间安全学院 · 网络空间安全</p><span class="member-no">L12</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L13"><div class="member-avatar mv2">秦</div><h3>秦梓源</h3><p>人工智能学院 · 人工智能</p><span class="member-no">L13</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L14"><div class="member-avatar mv3">蔡</div><h3>蔡凯</h3><p>沃特福德学院 · 人工智能</p><span class="member-no">L14</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L15"><div class="member-avatar mv4">丁</div><h3>丁博</h3><p>自动化学院 · 测控技术与仪器</p><span class="member-no">L15</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L16"><div class="member-avatar mv5">杨</div><h3>杨添龙</h3><p>计算机/软件学院 · 计算机科学与技术</p><span class="member-no">L16</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L18"><div class="member-avatar mv1">张</div><h3>张洪铖</h3><p>计算机与软件学院 · 软件工程</p><span class="member-no">L18</span></a>
+      <a class="member-card reveal" href="detail.html?type=member&amp;id=L19"><div class="member-avatar mv2">孙</div><h3>孙迦勒</h3><p>人工智能学院 · 人工智能</p><span class="member-no">L19</span></a>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="sec-head reveal">
+      <p class="label">CONTACT</p>
+      <h2>找到我们</h2>
+      <p><span class="dim">// 联系方式为占位内容，上线前替换为真实 QQ 群 / 邮箱</span></p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card reveal" data-tilt>
+        <div class="icon">💬</div>
+        <h3>招新 QQ 群</h3>
+        <p>123-456-789</p>
+      </div>
+      <div class="contact-card reveal" data-tilt>
+        <div class="icon">📮</div>
+        <h3>合作邮箱</h3>
+        <p>xiangwang@club.edu.cn</p>
+      </div>
+      <div class="contact-card reveal" data-tilt>
+        <div class="icon">📍</div>
+        <h3>活动室</h3>
+        <p>工科楼 A-302（占位）</p>
+      </div>
+      <div class="contact-card reveal" data-tilt>
+        <div class="icon">🐙</div>
+        <h3>GitHub</h3>
+        <p>github.com/xiangwang-club</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 象罔社团 · <span class="mono">Made with TypeScript ♥</span></p>
+    <p class="mono">$ uptime --since 20XX · <span style="color:var(--acc)">all systems operational</span></p>
+  </footer>
+
+  <script src="./bundle.js"></script>
+</body>
+</html>

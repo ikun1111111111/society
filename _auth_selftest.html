@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>auth self-test</title><script src="v3/assets/auth.js"></script></head>
+<body>
+<pre id="out">running…</pre>
+<script>
+(async function () {
+  var A = window.XWAUTH, log = [], pass = 0, fail = 0;
+  function t(name, cond, extra) {
+    (cond ? pass++ : fail++);
+    log.push((cond ? 'PASS  ' : 'FAIL  ') + name + (extra ? '   >> ' + extra : ''));
+  }
+  try { localStorage.clear(); } catch (e) {}
+
+  /* 1. 邀请码识别 */
+  t('空邀请码被拒', A.checkCode('').state === 'empty');
+  t('大小写/空格/分隔符容错', A.checkCode('  xw 2026 club ').ok === true);
+  t('不存在的码被拒', A.checkCode('XW2099-NOPE').state === 'invalid');
+  t('过期码被拒', A.checkCode('XW2025-EXPIRED').state === 'expired');
+  t('通用码不限次', A.checkCode('XW2026-CLUB').ok && A.checkCode('XW2026-CLUB').left === -1);
+  t('组专属码剩余 1 次', A.checkCode('XW2026-CAITONG').left === 1);
+
+  /* 2. 注册校验 */
+  var r;
+  r = await A.register({ code: 'XW2099-NOPE', name: '甲', u: 'user1', pw: 'abc123', pw2: 'abc123' });
+  t('坏码注册被拒', !r.ok && r.field === 'code', r.msg);
+  r = await A.register({ code: 'XW2026-CLUB', name: '甲', u: 'u', pw: 'abc123', pw2: 'abc123' });
+  t('账号太短被拒', !r.ok && r.field === 'u', r.msg);
+  r = await A.register({ code: 'XW2026-CLUB', name: '甲', u: 'user1', pw: '123456', pw2: '123456' });
+  t('纯数字密码被拒', !r.ok && r.field === 'pw', r.msg);
+  r = await A.register({ code: 'XW2026-CLUB', name: '甲', u: 'user1', pw: 'abc123', pw2: 'abc124' });
+  t('两次密码不一致被拒', !r.ok && r.field === 'pw2', r.msg);
+  r = await A.register({ code: 'XW2026-CAITONG', name: '甲', u: 'user1', pw: 'abc123', pw2: 'abc123' });
+  t('正确注册成功', r.ok === true, r.msg || ('role=' + r.user.role + ' group=' + r.user.group));
+  t('身份来自邀请码', r.ok && r.user.role === 'member' && r.user.group === '技术一组');
+  t('注册后自动登录', !!A.session() && A.session().u === 'user1');
+
+  /* 3. 邀请码用量 */
+  t('用量被记账', A.usedCount('XW2026-CAITONG') === 1);
+  t('一次性码已用尽', A.checkCode('XW2026-CAITONG').state === 'used');
+  r = await A.register({ code: 'XW2026-CAITONG', name: '乙', u: 'user2', pw: 'abc123', pw2: 'abc123' });
+  t('用尽后无法再注册', !r.ok && r.state === 'used', r.msg);
+  r = await A.register({ code: 'XW2026-CLUB', name: '甲', u: 'user1', pw: 'abc123', pw2: 'abc123' });
+  t('账号重名被拒', !r.ok && r.field === 'u', r.msg);
+
+  /* 4. 登录 */
+  A.logout2 = null; try { localStorage.removeItem('xw.session.v1'); } catch (e) {}
+  t('退出后会话消失', A.session() === null);
+  r = await A.login('user1', 'wrongpw');
+  t('错密码被拒', !r.ok && r.field === 'pw', r.msg);
+  r = await A.login('nobody', 'abc123');
+  t('不存在账号被拒', !r.ok && r.field === 'u', r.msg);
+  r = await A.login('user1', 'abc123');
+  t('正确登录成功', r.ok === true, r.ok ? ('你好 ' + r.user.name) : r.msg);
+  t('会话可读', !!A.session() && A.session().name === '甲');
+
+  /* 5. 管理员签发 */
+  t('非管理员不能签发', A.issueCode({ code: 'XW2026-TEST01', quota: 2 }).ok === false);
+  var adm = await A.register({ code: 'XW2026-ADMIN', name: '杨添龙', u: 'boss', pw: 'abc123', pw2: 'abc123' });
+  t('管理员码注册为 admin', adm.ok && adm.user.role === 'admin');
+  var iss = A.issueCode({ code: 'XW2026-TEST01', role: 'member', quota: 2, group: '测试组' });
+  t('管理员签发成功', iss.ok === true, iss.msg || iss.code);
+  t('新码可用且限 2 次', A.checkCode('XW2026-TEST01').ok && A.checkCode('XW2026-TEST01').left === 2);
+  var rr = await A.register({ code: 'XW2026-TEST01', name: '丙', u: 'user3', pw: 'abc123', pw2: 'abc123' });
+  t('新码可注册并占 1 个名额', rr.ok && A.checkCode('XW2026-TEST01').left === 1);
+  var dup = A.issueCode({ code: 'XW2026-CLUB', quota: 1 });
+  t('重复码不能签发', dup.ok === false, dup.msg);
+
+  /* 6. 预置测试账号（demo / xw2026） */
+  var dl;
+  dl = await A.login('demo', 'wrongpass');
+  t('测试账号错口令被拒', !dl.ok && dl.field === 'pw', dl.msg);
+  dl = await A.login('DEMO', 'xw2026');
+  t('测试账号大小写不敏感', dl.ok === true);
+  t('测试账号是管理员', dl.ok && dl.user.role === 'admin');
+  t('测试账号被标为内置', dl.ok && dl.user.builtin === true);
+  t('测试账号进入本地账号表', A.users().some(function (u) { return u.u === 'demo' && u.builtin; }));
+  t('测试账号会话生效', !!A.session() && A.session().u === 'demo');
+  dl = await A.demoLogin();
+  t('一键进入可用', dl.ok === true, dl.ok ? (dl.user.name + ' / ' + dl.user.role) : dl.msg);
+  t('测试账号专用码有效', A.checkCode('XW2026-DEMO').ok && A.checkCode('XW2026-DEMO').left === -1);
+  var rsv = await A.register({ code: 'XW2026-CLUB', name: '冒名', u: 'demo', pw: 'abc123', pw2: 'abc123' });
+  t('注册不能用保留名 demo', !rsv.ok && rsv.field === 'u', rsv.msg);
+  try { localStorage.removeItem('xw.users.v1'); } catch (e) {}
+  dl = await A.demoLogin();
+  t('清空本地账号表后仍能进', dl.ok === true);
+
+  log.push('');
+  log.push('总计：PASS ' + pass + ' / FAIL ' + fail);
+  document.getElementById('out').textContent = log.join('\n');
+})();
+</script>
+</body>
+</html>

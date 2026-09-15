@@ -1,0 +1,15 @@
+# 统一使用 LF 换行：本仓库要在 Linux 服务器上拉取部署，
+# CRLF 会污染 nginx.conf / 脚本 / Dockerfile 等文件。
+* text=auto eol=lf
+
+# 二进制文件不做换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary

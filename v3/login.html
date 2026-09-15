@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 · 注册 · 象罔社团</title>
+<meta name="description" content="象罔社团成员登录与注册入口：注册需要一枚社团成员邀请码。">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/auth.css">
+<style>.sk-wrap{display:flex;flex-wrap:wrap;gap:0}
+.sk-chip{display:inline-block;margin:0 8px 8px 0;padding:4px 13px;border-radius:999px;background:rgba(53,230,255,.10);border:1px solid rgba(53,230,255,.30);color:#e8f6ff;font-size:14px;font-weight:600;line-height:1.7}
+.exp-list{list-style:none;padding:0;margin:0}
+.exp-list li{padding:13px 0;border-bottom:1px dashed rgba(255,255,255,.10)}
+.exp-list li:last-child{border-bottom:none;padding-bottom:4px}
+.exp-list b{display:block;font-size:15px;color:#fff;font-weight:600;margin-bottom:5px}
+.exp-list span{font-size:14px;color:var(--dim);line-height:1.8;display:block}
+.cv6{background:linear-gradient(135deg,#38bdf8,#0f766e)}</style>
+<noscript><style>html.gated body{opacity:1}</style></noscript>
+<script src="assets/auth.js"></script>
+</head>
+<body>
+<div id="prog"></div>
+<div class="bg-layers"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="grid"></span></div>
+<nav>
+  <div class="nav-in">
+    <a class="logo" href="index.html"><span class="seal">象</span><span class="logo-txt"><b>象罔社团</b><small>XIANGWANG CLUB</small></span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">我们是谁</a></li>
+      <li><a href="life.html">社团动态</a></li>
+      <li><a href="members.html">成员</a></li>
+      <li><a href="projects.html">作品</a></li>
+      <li><a href="index.html#recruit">招新</a></li>
+      <li><a href="index.html#contact">联系</a></li>
+      <li><a href="area.html">成员专区</a></li>
+    </ul>
+    <div class="nav-right">
+      <span class="nav-status"><i></i>2026 秋招进行中</span>
+      <div class="nav-auth" id="navAuth"></div>
+      <a class="nav-cta" href="index.html#recruit">加入我们 <i>→</i></a>
+      <button class="burger" aria-label="菜单">☰</button>
+    </div>
+  </div>
+</nav>
+<main>
+
+<main class="auth-main">
+  <div class="auth-wrap">
+
+    <aside class="auth-brand">
+      <canvas id="net"></canvas>
+      <span class="auth-mark">准入</span>
+      <div class="ab-in">
+        <a class="logo" href="index.html"><span class="seal">象</span><span class="logo-txt"><b>象罔社团</b><small>XIANGWANG CLUB</small></span></a>
+        <h1>这扇门，<br><em>只对拿到钥匙的人开。</em></h1>
+        <p>整个站点只对社团成员开放——第一次来要先用邀请码注册，之后直接登录就能进。邀请码找社团里任何一位伙伴要一枚就行，他们当场就能给你。</p>
+        <ul class="ab-list">
+          <li><b>01</b><span>邀请码决定身份：普通成员，或者管理员，注册之后不能自己改</span></li>
+          <li><b>02</b><span>大部分码限定人数，用完即止；谁用过、谁发的，码上都记着</span></li>
+          <li><b>03</b><span>登录后进成员专区：组会安排、内部文档、任务看板、邀请码签发</span></li>
+        </ul>
+
+        <div class="ab-note open" id="noteBox">
+          <button type="button" id="noteBtn"><i>DEMO</i><span>演示用邀请码</span><u>▾</u></button>
+          <div class="ab-body">
+            <p>这一版是前端演示，下面几枚是内置的测试邀请码，可以直接拿去把整个流程走一遍。</p>
+            <div class="code-row account">
+              <code>demo</code>
+              <span>测试账号 · 口令 <b>xw2026</b> · 管理员，任何设备都能进</span>
+              <button type="button" data-fillacc="demo">一键进</button>
+            </div>
+            <div id="demoCodes"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="auth-card">
+      <div class="ac-glow"></div>
+      <div class="aflash" id="flash"></div>
+
+      <div class="atabs" id="tabs" data-on="login">
+        <span class="atab-in"></span>
+        <button class="atab on" type="button" data-tab="login">登录</button>
+        <button class="atab" type="button" data-tab="reg">注册 · 需邀请码</button>
+      </div>
+
+      <form class="apanel on" id="paneLogin" novalidate>
+        <div class="afield">
+          <label>账号 <em>注册时填的那个</em></label>
+          <div class="ain" data-for="lu"><i>@</i><input type="text" id="lu" placeholder="你的账号" autocomplete="username" spellcheck="false"></div>
+          <p class="aerr" data-err="lu"></p>
+        </div>
+        <div class="afield">
+          <label>密码</label>
+          <div class="ain" data-for="lp"><i>✦</i><input type="password" id="lp" placeholder="至少 6 位" autocomplete="current-password"><button class="atail" type="button" data-eye="lp">显示</button></div>
+          <p class="aerr" data-err="lp"></p>
+        </div>
+        <div class="arow">
+          <label class="acheck"><input type="checkbox" id="lkeep" checked><u></u><span>记住我（7 天免登录）</span></label>
+          <a href="#" id="forgot">忘记密码？</a>
+        </div>
+        <button class="asub" type="submit" id="lsub">登录并进入站点</button>
+        <div class="aor"><i></i><span>或者</span><i></i></div>
+        <button class="aguest" type="button" id="demoBtn">
+          <span class="gd">🚪</span>
+          <span class="gt"><b>用测试账号一键进入</b><small>demo / xw2026 · 管理员 · 随时可进</small></span>
+          <span class="ga">→</span>
+        </button>
+        <p class="aalt">还没有账号？<button type="button" data-goto="reg">用邀请码注册 →</button></p>
+      </form>
+
+      <form class="apanel" id="paneReg" novalidate>
+        <div class="afield">
+          <label>邀请码 <u>*</u> <em>没有码注册不了</em></label>
+          <div class="ain code" data-for="rc"><i>⚿</i><input type="text" id="rc" placeholder="XW2026-XXXXXX" autocomplete="off" spellcheck="false" maxlength="24"><span class="astat" id="rcIco"></span></div>
+          <div class="cstate" id="rcState"></div>
+          <p class="aerr" data-err="rc"></p>
+        </div>
+        <div class="a2col">
+          <div class="afield">
+            <label>昵称 <u>*</u></label>
+            <div class="ain" data-for="rn"><i>✦</i><input type="text" id="rn" placeholder="社团里怎么称呼你" maxlength="20"></div>
+            <p class="aerr" data-err="rn"></p>
+          </div>
+          <div class="afield">
+            <label>账号 <u>*</u></label>
+            <div class="ain" data-for="ru"><i>@</i><input type="text" id="ru" placeholder="字母开头 3-20 位" maxlength="20" autocomplete="username" spellcheck="false"></div>
+            <p class="aerr" data-err="ru"></p>
+          </div>
+        </div>
+        <div class="afield">
+          <label>密码 <u>*</u></label>
+          <div class="ain" data-for="rp"><i>✦</i><input type="password" id="rp" placeholder="至少 6 位，别用纯数字" autocomplete="new-password"><button class="atail" type="button" data-eye="rp">显示</button></div>
+          <div class="strength" id="str" data-lv="0"><i></i><i></i><i></i><i></i></div>
+          <p class="strength-txt" id="strTxt">密码强度 —</p>
+          <p class="aerr" data-err="rp"></p>
+        </div>
+        <div class="afield">
+          <label>确认密码 <u>*</u></label>
+          <div class="ain" data-for="rp2"><i>✦</i><input type="password" id="rp2" placeholder="再输一遍" autocomplete="new-password"></div>
+          <p class="aerr" data-err="rp2"></p>
+        </div>
+        <div class="arow" style="margin-bottom:20px">
+          <label class="acheck"><input type="checkbox" id="ragree"><u></u><span>我确认邀请码是社团伙伴本人给我的，账号只用于社团内部站点</span></label>
+        </div>
+        <button class="asub" type="submit" id="rsub">用邀请码注册</button>
+        <p class="aalt">已经有账号？<button type="button" data-goto="login">直接登录 →</button></p>
+      </form>
+
+      <div class="aok" id="aok">
+        <div class="ring">✓</div>
+        <h3 id="aokT">欢迎加入，象罔。</h3>
+        <p id="aokP"></p>
+        <div class="bar"><i></i></div>
+      </div>
+
+      <p class="afoot" style="margin-top:24px;text-align:center;font-size:13.5px;line-height:1.8;color:var(--dim-2)">
+        演示版：账号和邀请码存在这台浏览器里，换设备或清缓存就没了。<br>
+        正式上线要把校验搬到后端，前端这套只负责界面与流程。
+      </p>
+    </section>
+
+  </div>
+<script>
+(function () {
+  var A = window.XWAUTH, $ = function (s) { return document.querySelector(s); },
+      $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var el = function (id) { return document.getElementById(id); };
+  var box = function (id) { return document.querySelector('.ain[data-for="' + id + '"]'); };
+
+  /* 目标页：只接受同目录下的 xxx.html，防开放重定向 */
+  var next = (function () {
+    var m = /[?&]next=([^&]+)/.exec(location.search);
+    var v = m ? decodeURIComponent(m[1]) : 'index.html';
+    return /^[A-Za-z0-9_\-]+\.html([?#].*)?$/.test(v) ? v : 'index.html';
+  })();
+
+  /* ---------- 提示条 / toast ---------- */
+  var toastEl = null;
+  function toast(msg, ms) {
+    if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'toast'; document.body.appendChild(toastEl); }
+    toastEl.textContent = msg; toastEl.classList.add('on');
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(function () { toastEl.classList.remove('on'); }, ms || 2600);
+  }
+  function flash(msg, kind) {
+    var f = $('#flash');
+    if (!msg) { f.className = 'aflash'; f.textContent = ''; return; }
+    f.className = 'aflash on ' + (kind || 'info');
+    f.textContent = msg;
+  }
+
+  /* ---------- 字段错误 ---------- */
+  function setErr(id, msg) {
+    var e = document.querySelector('.aerr[data-err="' + id + '"]'), b = box(id);
+    if (e) { e.textContent = msg || ''; e.classList.toggle('on', !!msg); }
+    if (b) b.classList.toggle('bad', !!msg);
+    return !msg;
+  }
+  function clearErr() {
+    $$('.aerr').forEach(function (e) { e.classList.remove('on'); });
+    $$('.ain').forEach(function (b) { b.classList.remove('bad'); });
+  }
+
+  /* ---------- 标签页 ---------- */
+  function goto(tab) {
+    $('#tabs').dataset.on = tab;
+    $$('.atab').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === tab); });
+    $('#paneLogin').classList.toggle('on', tab === 'login');
+    $('#paneReg').classList.toggle('on', tab === 'reg');
+    clearErr();
+    setTimeout(function () { var f = tab === 'login' ? el('lu') : el('rc'); if (f) f.focus(); }, 70);
+  }
+  $$('.atab').forEach(function (b) { b.addEventListener('click', function () { goto(b.dataset.tab); }); });
+  $$('[data-goto]').forEach(function (b) { b.addEventListener('click', function () { goto(b.dataset.goto); }); });
+
+  /* ---------- 密码显隐 ---------- */
+  $$('[data-eye]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = el(b.dataset.eye), show = i.type === 'password';
+      i.type = show ? 'text' : 'password';
+      b.textContent = show ? '隐藏' : '显示';
+    });
+  });
+
+  /* ---------- 邀请码实时校验 ---------- */
+  var rcState = $('#rcState'), rcIco = $('#rcIco');
+  function codeLive(live) {
+    var v = el('rc').value.trim(), b = box('rc');
+    if (!v) {
+      rcState.className = 'cstate'; rcState.innerHTML = ''; rcIco.textContent = '';
+      b.classList.remove('good', 'bad');
+      if (!live) setErr('rc', '注册必须有邀请码，这是唯一入口');
+      return false;
+    }
+    var r = A.checkCode(v);
+    rcState.className = 'cstate on ' + (r.ok ? 'ok' : 'no');
+    if (r.ok) {
+      rcState.innerHTML = '✓ <b>' + A.esc(r.def.code) + '</b> · ' + A.esc(r.msg)
+        + (r.def.owner && r.def.owner !== '社团' ? '<br>由 ' + A.esc(r.def.owner) + ' 发出' : '');
+      rcIco.textContent = '✓';
+    } else {
+      rcState.innerHTML = '✕ ' + A.esc(r.msg);
+      rcIco.textContent = '✕';
+    }
+    b.classList.toggle('good', r.ok); b.classList.toggle('bad', !r.ok);
+    if (r.ok) setErr('rc', '');
+    return r.ok;
+  }
+  el('rc').addEventListener('input', function () {
+    var v = this.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '');
+    if (v !== this.value) this.value = v;
+    codeLive(true);
+  });
+  el('rc').addEventListener('blur', function () { if (this.value.trim()) codeLive(false); });
+
+  /* ---------- 密码强度 ---------- */
+  var LV = ['—', '太弱 · 只有长度撑着', '一般 · 再混上字母和数字', '不错 · 加个符号更稳', '很稳 · 记牢它'];
+  el('rp').addEventListener('input', function () {
+    var p = this.value, s = 0;
+    if (p.length >= 6) s++;
+    if (p.length >= 10) s++;
+    if (/[A-Za-z]/.test(p) && /[0-9]/.test(p)) s++;
+    if (/[^A-Za-z0-9]/.test(p)) s++;
+    if (!p) s = 0;
+    $('#str').dataset.lv = s;
+    $('#strTxt').textContent = '密码强度 ' + LV[Math.min(s, 4)];
+    if (p) setErr('rp', '');
+  });
+  el('rp2').addEventListener('input', function () { if (this.value === el('rp').value) setErr('rp2', ''); });
+
+  /* ---------- 成功态 ---------- */
+  function succeed(title, sub) {
+    $$('.apanel').forEach(function (p) { p.classList.remove('on'); });
+    $('#tabs').style.display = 'none';
+    $('.afoot').style.display = 'none';
+    $('#aokT').textContent = title;
+    $('#aokP').textContent = sub;
+    $('#aok').classList.add('on');
+    setTimeout(function () { location.href = next; }, 1300);
+  }
+
+  /* ---------- 登录 ---------- */
+  $('#paneLogin').addEventListener('submit', function (e) {
+    e.preventDefault(); clearErr(); flash('');
+    var u = el('lu').value.trim(), pw = el('lp').value;
+    if (!u) return setErr('lu', '账号不能空着');
+    if (!pw) return setErr('lp', '密码不能空着');
+    var b = $('#lsub'); b.disabled = true; b.textContent = '正在校验…';
+    A.login(u, pw).then(function (r) {
+      if (!r.ok) { b.disabled = false; b.textContent = '登录并进入站点'; return setErr(r.field, r.msg); }
+      succeed('欢迎回来，' + r.user.name + '。',
+        A.roleLabel(r.user.role) + ' · 邀请码 ' + (r.user.code || '—') + ' · 正在进入站点');
+    });
+  });
+
+  /* ---------- 注册 ---------- */
+  $('#paneReg').addEventListener('submit', function (e) {
+    e.preventDefault(); clearErr(); flash('');
+    if (!codeLive(false)) return;
+    if (!el('rn').value.trim()) return setErr('rn', '填个昵称，方便其他成员认人');
+    var u = el('ru').value.trim();
+    if (!/^[A-Za-z][A-Za-z0-9_]{2,19}$/.test(u)) return setErr('ru', '账号 3-20 位，字母开头，只能字母 / 数字 / 下划线');
+    var pw = el('rp').value;
+    if (pw.length < 6) return setErr('rp', '密码至少 6 位');
+    if (pw !== el('rp2').value) return setErr('rp2', '两次输入的密码不一致');
+    if (!el('ragree').checked) { flash('先勾一下最下面那行确认，再提交。', 'warn'); return; }
+
+        var b = $('#rsub'); b.disabled = true; b.textContent = '正在校验邀请码…';
+        A.register({ code: el('rc').value, name: el('rn').value, u: u, pw: pw, pw2: el('rp2').value })
+          .then(function (r) {
+            if (!r.ok) {
+              b.disabled = false; b.textContent = '用邀请码注册';
+              if (r.field === 'code') { codeLive(false); setErr('rc', r.msg); }
+              else setErr(r.field, r.msg);
+              return;
+            }
+            succeed('欢迎加入，' + r.user.name + '。',
+              '邀请码 ' + r.def.code + ' 生效 · 身份 ' + A.roleLabel(r.user.role) + ' · 正在进入站点');
+          });
+  });
+
+  /* ---------- 忘记密码 ---------- */
+  $('#forgot').addEventListener('click', function (e) {
+    e.preventDefault();
+    flash('这个站还没有邮件服务。忘记密码就找发邀请码给你的那位伙伴，让他帮你重置；或者换个账号重新用邀请码注册。', 'info');
+  });
+
+  /* ---------- 测试账号：一键进入 ---------- */
+  function demoEnter(btn, label) {
+    clearErr(); flash('');
+    var old = label || (btn ? btn.textContent : '');
+    if (btn) { btn.disabled = true; btn.textContent = '正在进入…'; }
+    A.demoLogin().then(function (r) {
+      if (!r.ok) {
+        if (btn) { btn.disabled = false; btn.textContent = old; }
+        flash(r.msg || '测试账号暂时进不去，请稍后再试。', 'warn');
+        return;
+      }
+      succeed('欢迎回来，' + r.user.name + '。',
+        A.roleLabel(r.user.role) + ' · 内置测试账号 · 正在进入站点');
+    });
+  }
+  $('#demoBtn').addEventListener('click', function () { demoEnter(this); });
+
+  /* ---------- 演示邀请码清单 ---------- */
+  $('#noteBtn').addEventListener('click', function () { $('#noteBox').classList.toggle('open'); });
+  $('#demoCodes').innerHTML = A.codes().map(function (c) {
+    var st = A.codeState(c);
+    return '<div class="code-row' + (st.ok ? '' : ' dead') + '">'
+      + '<code>' + A.esc(c.code) + '</code>'
+      + '<span>' + A.esc(c.group || '') + (c.quota > 0 ? ' · 限 ' + c.quota + ' 次' : ' · 不限次') + '</span>'
+      + '<button type="button" data-fill="' + A.esc(c.code) + '">' + (st.ok ? '填入' : '已失效') + '</button></div>';
+  }).join('');
+  $('#noteBox').addEventListener('click', function (e) {
+    var acc = e.target.closest('[data-fillacc]');
+    if (acc) { demoEnter(acc, '一键进'); return; }
+    var b = e.target.closest('[data-fill]');
+    if (!b) return;
+    goto('reg');
+    el('rc').value = b.dataset.fill;
+    codeLive(true);
+    toast('邀请码已填好，接着写昵称和密码就行');
+  });
+
+  /* ---------- 进入页面时的状态提示 ---------- */
+  (function boot() {
+    var q = location.search;
+    if (/[?&]need=1/.test(q)) flash('整个站点只对社团成员开放，先登录或注册。', 'warn');
+    else if (/[?&]bye=1/.test(q)) flash('已退出登录，会话清掉了。', 'info');
+    var s = A.session();
+    if (s) flash('当前已登录为 ' + s.name + '（' + A.roleLabel(s.role) + '）。想换账号，直接登录另一个即可。', 'info');
+    var pre = /[?&]code=([^&]+)/.exec(q);
+    if (pre) { goto('reg'); el('rc').value = decodeURIComponent(pre[1]).toUpperCase(); codeLive(true); }
+  })();
+})();
+</script>
+
+</main>
+<footer>
+  <div class="foot-in">
+    <span class="motto">// 象罔得之 —— 无心而求，反而得之</span>
+    <span class="foot-links">
+      <a href="index.html">首页</a>
+      <a href="projects.html">作品</a>
+      <a href="members.html">成员</a>
+      <a href="life.html">动态</a>
+      <a href="index.html#recruit">招新</a>
+    </span>
+    <span>© 2026 象罔社团 · 内容占位，上线前替换</span>
+  </div>
+</footer>
+<button id="top-btn" aria-label="回到顶部">↑</button>
+<script src="assets/site.js"></script>
+</body>
+</html>

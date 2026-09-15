@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="gated">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>象罔社团 · 知索不得，象罔得之</title>
+<meta name="description" content="象罔社团官方网站：社团生活、招新、作品、成员。">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/auth.css">
+<style>.sk-wrap{display:flex;flex-wrap:wrap;gap:0}
+.sk-chip{display:inline-block;margin:0 8px 8px 0;padding:4px 13px;border-radius:999px;background:rgba(53,230,255,.10);border:1px solid rgba(53,230,255,.30);color:#e8f6ff;font-size:14px;font-weight:600;line-height:1.7}
+.exp-list{list-style:none;padding:0;margin:0}
+.exp-list li{padding:13px 0;border-bottom:1px dashed rgba(255,255,255,.10)}
+.exp-list li:last-child{border-bottom:none;padding-bottom:4px}
+.exp-list b{display:block;font-size:15px;color:#fff;font-weight:600;margin-bottom:5px}
+.exp-list span{font-size:14px;color:var(--dim);line-height:1.8;display:block}
+.cv6{background:linear-gradient(135deg,#38bdf8,#0f766e)}</style>
+<noscript><style>html.gated body{opacity:1}</style></noscript>
+<script src="assets/auth.js"></script>
+</head>
+<body>
+<div id="prog"></div>
+<div class="bg-layers"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="grid"></span></div>
+<nav>
+  <div class="nav-in">
+    <a class="logo" href="index.html"><span class="seal">象</span><span class="logo-txt"><b>象罔社团</b><small>XIANGWANG CLUB</small></span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">我们是谁</a></li>
+      <li><a href="life.html">社团动态</a></li>
+      <li><a href="members.html">成员</a></li>
+      <li><a href="projects.html">作品</a></li>
+      <li><a href="index.html#recruit">招新</a></li>
+      <li><a href="index.html#contact">联系</a></li>
+      <li><a href="area.html">成员专区</a></li>
+    </ul>
+    <div class="nav-right">
+      <span class="nav-status"><i></i>2026 秋招进行中</span>
+      <div class="nav-auth" id="navAuth"></div>
+      <a class="nav-cta" href="index.html#recruit">加入我们 <i>→</i></a>
+      <button class="burger" aria-label="菜单">☰</button>
+    </div>
+  </div>
+</nav>
+<main>
+
+<header class="hero" id="top">
+  <canvas id="net"></canvas>
+  <span class="hero-mark">象罔</span>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill"><i class="dot-live"></i> 2026 秋季招新 · 进行中</span>
+      <h1><span class="w" style="--i:0">知</span><span class="w" style="--i:1">索</span><span class="w" style="--i:2">不</span><span class="w" style="--i:3">得</span><span class="w" style="--i:4">，</span><br><span class="w" style="--i:5">象</span><span class="w" style="--i:6">罔</span><span class="w" style="--i:7">得</span><span class="w" style="--i:8">之</span><span class="w" style="--i:9">。</span></h1>
+      <p class="typer" data-typer="Agent 工程|应用智能体|科研 Harness|检索增强|上下文工程">
+        &gt; 我们现在在做：<b class="tw"></b><i class="caret"></i>
+      </p>
+      <p class="hero-sub">探索无法被现有模型定义的智能。</p>
+      <div class="btn-row">
+        <a class="btn btn-p" href="#life">看看我们最近在干嘛 →</a>
+        <a class="btn btn-g" href="projects.html">浏览全部作品</a>
+      </div>
+      <div class="hero-stats rv"><div class="hstat"><b><span data-count="120">0</span>+</b><span>在册成员</span></div><div class="hstat"><b><span data-count="30">0</span>+</b><span>完成项目</span></div><div class="hstat"><b><span data-count="15">0</span></b><span>竞赛奖项</span></div><div class="hstat"><b><span data-count="98">0</span>%</b><span>就业 / 升学</span></div></div>
+    </div>
+    <div class="hero-side">
+      <div class="term">
+        <div class="term-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>xiangwang ~ club-status</span></div>
+        <div class="term-body"><div class="ln"><span class="c">$</span> <span class="k">club</span> status</div><div class="ln">  <span class="s">✓</span> 在册成员 <span class="v">120</span> · 在研项目 <span class="v">6</span></div><div class="ln">  <span class="s">✓</span> 本周组会 <span class="v">周五 19:00</span> @ A-302</div><div class="ln">  <span class="s">✓</span> 招新状态 <span class="v">进行中</span> · 报名至 09.30</div><div class="ln"><span class="c">$</span> <span class="k">ls</span> projects/</div><div class="ln">  OpenClaw/       教育智能体/</div><div class="ln">  专利智能体/     DeepseekHarness/</div><div class="ln">  Hermes/        科研智能体/</div><div class="ln"><span class="c">$</span> <span class="k">next</span> --events 2</div><div class="ln">  &gt; 09.19 19:00 迎新分享会「如何读源码」</div><div class="ln">  &gt; 09.26 19:00 算法小讲堂「最短路」</div><div class="ln"><span class="c">$</span> <span class="k">join</span> --now  <span class="s">_</span></div></div>
+      </div>
+      <span class="chip-float cf1">⌘ 每周五 19:00 组会</span>
+      <span class="chip-float cf2">⚡ 6 个在研项目</span>
+      <span class="chip-float cf3">☕ A-302 长期驻扎</span>
+      <div class="badge-spin">
+        <svg viewBox="0 0 200 200" aria-hidden="true"><defs><path id="bcircle" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0"/></defs>
+          <text><textPath href="#bcircle" startOffset="0">XIANGWANG · 象罔社团 · JOIN US · 写代码 · 做东西 · </textPath></text></svg>
+        <span class="core">象</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mq-wrap">
+  <div class="mq">
+    <span class="mq-item"><i></i>TypeScript</span><span class="mq-item"><i></i>Vue 3</span><span class="mq-item"><i></i>React</span><span class="mq-item"><i></i>Node.js</span><span class="mq-item"><i></i>Go</span><span class="mq-item"><i></i>Python</span><span class="mq-item"><i></i>PyTorch</span><span class="mq-item"><i></i>LLM / RAG</span><span class="mq-item"><i></i>Docker</span><span class="mq-item"><i></i>MySQL</span><span class="mq-item"><i></i>Redis</span><span class="mq-item"><i></i>Nginx</span><span class="mq-item"><i></i>Canvas</span><span class="mq-item"><i></i>WebGL</span><span class="mq-item"><i></i>Git</span><span class="mq-item"><i></i>Linux</span><span class="mq-item"><i></i>Figma</span><span class="mq-item"><i></i>ECharts</span>
+    <span class="mq-item"><i></i>TypeScript</span><span class="mq-item"><i></i>Vue 3</span><span class="mq-item"><i></i>React</span><span class="mq-item"><i></i>Node.js</span><span class="mq-item"><i></i>Go</span><span class="mq-item"><i></i>Python</span><span class="mq-item"><i></i>PyTorch</span><span class="mq-item"><i></i>LLM / RAG</span><span class="mq-item"><i></i>Docker</span><span class="mq-item"><i></i>MySQL</span><span class="mq-item"><i></i>Redis</span><span class="mq-item"><i></i>Nginx</span><span class="mq-item"><i></i>Canvas</span><span class="mq-item"><i></i>WebGL</span><span class="mq-item"><i></i>Git</span><span class="mq-item"><i></i>Linux</span><span class="mq-item"><i></i>Figma</span><span class="mq-item"><i></i>ECharts</span>
+  </div>
+  <div class="mq rev">
+    <span class="mq-item b">从需求评审到上线运维</span><span class="mq-item b">走完整一遍生产流程</span><span class="mq-item b">18 位成员 · 7 个学院</span><span class="mq-item b">每周五 19:00 固定组会</span><span class="mq-item b">自研项目全部开源</span><span class="mq-item b">写文档也算交付物</span><span class="mq-item b">工科楼 A-302</span><span class="mq-item b">2026 秋季招新进行中</span>
+    <span class="mq-item b">从需求评审到上线运维</span><span class="mq-item b">走完整一遍生产流程</span><span class="mq-item b">18 位成员 · 7 个学院</span><span class="mq-item b">每周五 19:00 固定组会</span><span class="mq-item b">自研项目全部开源</span><span class="mq-item b">写文档也算交付物</span><span class="mq-item b">工科楼 A-302</span><span class="mq-item b">2026 秋季招新进行中</span>
+  </div>
+</div>
+
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="sec-num">01</span>
+      <p class="kicker">ABOUT · 我们是谁</p>
+      <h2>不搞"坐而论道"，<span class="grad">我们直接做东西</span></h2>      <p>象罔，出自《庄子·天地》：黄帝丢了玄珠，让"知"去找、让"离朱"去找都找不到，最后无心而求的"象罔"找到了。
+      我们借这个名字提醒自己——最好的东西往往不是刷题刷出来的，是在动手折腾的过程中撞见的。</p>
+    </div>
+    <div class="bento"><div class="bt w2 rv"><span class="ic">🌐</span><h3>Web 全栈</h3><p>从需求评审到上线运维，完整走一遍生产流程，而不是停在 demo。</p><span class="no">01</span></div><div class="bt  rv"><span class="ic">🤖</span><h3>人工智能</h3><p>LLM 应用、RAG 检索、模型工程化落地。</p><span class="no">02</span></div><div class="bt  rv"><span class="ic">🦾</span><h3>Agent 工程</h3><p>模型调用、工具注册、沙盒执行，把重复的部分抽成底座。</p><span class="no">03</span></div><div class="bt  rv"><span class="ic">🔬</span><h3>科研全流程</h3><p>想法到可投稿论文，六阶段每步都要留下能被检查的产物。</p><span class="no">04</span></div><div class="bt w2 rv"><span class="ic">🧩</span><h3>开源实践</h3><p>所有自研项目均开源，PR 与 Code Review 全流程实战。</p><span class="no">05</span></div><div class="bt  rv"><span class="ic">🎨</span><h3>设计与前端</h3><p>设计与工程一起做决定，拒绝“设计师画图开发照抄”。</p><span class="no">06</span></div></div>
+    <p class="rv" style="margin-top:26px;font-family:var(--mono);font-size:14.5px;color:var(--dim-2)">
+      // 方向持续扩充中，也欢迎你带来一个全新的方向</p>
+  </div>
+</section>
+
+<section id="life" style="padding-top:40px">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="sec-num">02</span>
+      <p class="kicker">CLUB LIFE · 最近在干嘛</p>
+      <h2>社团不是一排链接，是每周都在发生的事</h2>
+      <p>每条动态都有独立详情页：现场照片、完整复盘、到场的人。</p>
+    </div>
+    <div class="tl">
+      <div class="tl-item rv">
+        <a class="tl-card spot" href="life-a1.html">
+          <span class="d">2026.09.14 · 星期一</span>
+          <h3>各组进度汇报会：做了什么、卡在哪、下周做什么</h3>
+          <p>本学期第一次正式进度汇报，五个组轮流上台，每组 8 分钟，只讲三件事：做完了什么、卡在什么地方、下周打算做什么。</p>
+          <span class="go">查看详情 <span>→</span></span>
+        </a>
+      </div>
+      <div class="tl-item rv">
+        <a class="tl-card spot" href="life-a2.html">
+          <span class="d">2026.09.07 · 星期一</span>
+          <h3>各组自行开会：把学期目标拆成一周能做完的小块</h3>
+          <p>这一周不开全员大会，五个组自己找时间碰——图书馆讨论区、实验室、线上会议室，各开各的。</p>
+          <span class="go">查看详情 <span>→</span></span>
+        </a>
+      </div>
+      <div class="tl-item rv">
+        <a class="tl-card spot" href="life-a3.html">
+          <span class="d">2026.08.16 · 星期日</span>
+          <h3>暑期论文研读会：从读得懂，到能对着白板讲出来</h3>
+          <p>每周日晚一次的线上研读，这期精读 RAG 与向量检索的两篇经典工作，读完要能讲清“解决了什么问题、怎么解决的、我们哪块能用”。</p>
+          <span class="go">查看详情 <span>→</span></span>
+        </a>
+      </div>
+      <div class="tl-item rv">
+        <a class="tl-card spot" href="life-a4.html">
+          <span class="d">2026.08.02 · 星期日</span>
+          <h3>智能体小组中期检查：三个方向，各跑通一条完整链路</h3>
+          <p>暑期过半，各智能体方向集中演示，要求不是“讲思路”，而是当场从输入跑到输出；跑不通的当场决定砍掉或降级。</p>
+          <span class="go">查看详情 <span>→</span></span>
+        </a>
+      </div></div>
+    <div style="text-align:center;margin-top:34px"><a class="btn btn-g" href="life.html">查看全部动态 →</a></div>
+  </div>
+</section>
+
+<section id="members" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="sec-num">03</span>
+      <p class="kicker">MEMBERS · 先听听他们说</p>
+      <h2>18 位成员，18 种来这儿的理由</h2>
+      <p>隐私说明：本页仅展示姓名·学院·专业·职位，其他个人信息一律不上网。</p>
+    </div>
+    <div class="quote-grid">
+      <div class="beam tilt rv"><div class="beam-in spot qc">
+        <span class="qm">"</span>
+        <p>在这里我第一次看到自己写的东西，被完全不认识的同学拿去用。那种感觉，上课给不了。</p>
+        <a class="who" href="member-chenmingrui.html"><span class="av-sm av-1" style="width:38px;height:38px;font-size:13.68px">陈</span><span><b>陈明睿</b><span>雷丁学院 · 大气科学 · chenmingrui</span></span></a>
+      </div></div>
+      <div class="beam tilt rv"><div class="beam-in spot qc">
+        <span class="qm">"</span>
+        <p>写完第一个能上线的接口那天，我截图发了朋友圈——现在想想有点傻，但当时真的很开心。</p>
+        <a class="who" href="member-yuyue.html"><span class="av-sm av-2" style="width:38px;height:38px;font-size:13.68px">虞</span><span><b>虞越</b><span>软件学院 · 软件工程 · yuyue</span></span></a>
+      </div></div>
+      <div class="beam tilt rv"><div class="beam-in spot qc">
+        <span class="qm">"</span>
+        <p>技术是骨架，审美是皮肤——只有骨架的东西没人愿意摸第二次。</p>
+        <a class="who" href="member-yusiyu.html"><span class="av-sm av-4" style="width:38px;height:38px;font-size:13.68px">余</span><span><b>余思雨</b><span>艺术学院 · 数字媒体艺术 · yusiyu</span></span></a>
+      </div></div></div>
+    <div class="mem-grid" style="margin-bottom:34px">
+      <a class="beam tilt rv" href="member-yangtianlong.html"><div class="beam-in mem spot">
+        <span class="av av-5" style="width:62px;height:62px;font-size:22.32px">杨</span><b>杨添龙</b>
+        <span class="mj">计算机科学与技术</span>
+        <span class="mpost" style="color:#04070f;background:linear-gradient(135deg,#35e6ff,#8b5cf6);padding:2px 10px;border-radius:999px;font-weight:700">社长 · 外联负责人</span>
+      </div></a>
+      <a class="beam tilt rv" href="member-sunjiale.html"><div class="beam-in mem spot">
+        <span class="av av-2" style="width:62px;height:62px;font-size:22.32px">孙</span><b>孙迦勒</b>
+        <span class="mj">人工智能</span>
+        <span class="mpost" style="color:#04070f;background:linear-gradient(135deg,#35e6ff,#8b5cf6);padding:2px 10px;border-radius:999px;font-weight:700">副社长 · 技术部部长</span>
+      </div></a>
+      <a class="beam tilt rv" href="member-caitong.html"><div class="beam-in mem spot">
+        <span class="av av-1" style="width:62px;height:62px;font-size:22.32px">蔡</span><b>蔡僮</b>
+        <span class="mj">电气工程及其自动化</span>
+        <span class="mpost" style="color:var(--cy);border:1px solid rgba(53,230,255,.38);padding:2px 10px;border-radius:999px;font-weight:600">技术一组组长</span>
+      </div></a>
+      <a class="beam tilt rv" href="member-caikai.html"><div class="beam-in mem spot">
+        <span class="av av-3" style="width:62px;height:62px;font-size:22.32px">蔡</span><b>蔡凯</b>
+        <span class="mj">人工智能</span>
+        <span class="mpost" style="color:var(--cy);border:1px solid rgba(53,230,255,.38);padding:2px 10px;border-radius:999px;font-weight:600">技术二组组长</span>
+      </div></a>
+      <a class="beam tilt rv" href="member-raoyuxuan.html"><div class="beam-in mem spot">
+        <span class="av av-5" style="width:62px;height:62px;font-size:22.32px">饶</span><b>饶宇轩</b>
+        <span class="mj">软件工程</span>
+        <span class="mpost" style="color:var(--cy);border:1px solid rgba(53,230,255,.38);padding:2px 10px;border-radius:999px;font-weight:600">技术三组组长</span>
+      </div></a>
+      <a class="beam tilt rv" href="member-qinziyuan.html"><div class="beam-in mem spot">
+        <span class="av av-2" style="width:62px;height:62px;font-size:22.32px">秦</span><b>秦梓源</b>
+        <span class="mj">人工智能</span>
+        <span class="mpost" style="color:var(--cy);border:1px solid rgba(53,230,255,.38);padding:2px 10px;border-radius:999px;font-weight:600">技术四组组长</span>
+      </div></a>
+      <a class="beam tilt rv" href="member-chenmingrui.html"><div class="beam-in mem spot">
+        <span class="av av-1" style="width:62px;height:62px;font-size:22.32px">陈</span><b>陈明睿</b>
+        <span class="mj">大气科学</span>
+        <span class="mpost" style="color:var(--vi);border:1px solid rgba(139,92,246,.38);padding:2px 10px;border-radius:999px;font-weight:600">项目运营部部长</span>
+      </div></a>
+      <a class="beam tilt rv" href="member-zhengzixin.html"><div class="beam-in mem spot">
+        <span class="av av-4" style="width:62px;height:62px;font-size:22.32px">郑</span><b>郑子鑫</b>
+        <span class="mj">网络空间安全</span>
+        <span class="mpost" style="color:var(--vi);border:1px solid rgba(139,92,246,.38);padding:2px 10px;border-radius:999px;font-weight:600">宣传视觉部部长</span>
+      </div></a></div>
+    <div style="text-align:center"><a class="btn btn-g" href="members.html">查看全部 18 位成员 →</a></div>
+  </div>
+</section>
+
+<section id="works" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="sec-num">04</span>
+      <p class="kicker">PORTFOLIO · 作品背后是人</p>
+      <h2>每个项目都有独立的详情页</h2>
+      <p>不讲技术栈罗列，讲谁做的、踩了什么坑、现在什么状态。</p>
+    </div>
+    <div class="work-grid">
+      <a class="beam tilt rv" href="work-w1.html" data-cat="Agent 工程"><div class="beam-in wk spot">
+        <div class="cover cv1"><span class="st">开发中</span><span class="em">🦾</span></div>
+        <div class="body">
+          <span class="cat">Agent 工程</span>
+          <h3>OpenClaw</h3>
+          <p>社团智能体项目的统一底座：模型调用、工具注册、沙盒执行与控制台，收拢进一套可复现的工程骨架。…</p>
+          <div class="stack"><span>Python</span><span>FastAPI</span><span>Docker</span><span>TypeScript</span></div>
+          <span class="more">查看项目详情 <span>→</span></span>
+        </div>
+      </div></a>
+      <a class="beam tilt rv" href="work-w2.html" data-cat="应用智能体"><div class="beam-in wk spot">
+        <div class="cover cv2"><span class="st">开发中</span><span class="em">📚</span></div>
+        <div class="body">
+          <span class="cat">应用智能体</span>
+          <h3>教育智能体</h3>
+          <p>面向教学场景的智能体：备课检索、作业批改辅助与答疑，覆盖一门课从准备到答疑的完整链路。…</p>
+          <div class="stack"><span>Python</span><span>LLM</span><span>RAG</span><span>PostgreSQL</span></div>
+          <span class="more">查看项目详情 <span>→</span></span>
+        </div>
+      </div></a>
+      <a class="beam tilt rv" href="work-w3.html" data-cat="应用智能体"><div class="beam-in wk spot">
+        <div class="cover cv3"><span class="st">开发中</span><span class="em">🔍</span></div>
+        <div class="body">
+          <span class="cat">应用智能体</span>
+          <h3>专利智能体</h3>
+          <p>专利与文献检索智能体：找得到标题，也要把摘要、权利要求与引用关系一次拿全。…</p>
+          <div class="stack"><span>Python</span><span>OpenAlex</span><span>LLM</span><span>Embedding</span></div>
+          <span class="more">查看项目详情 <span>→</span></span>
+        </div>
+      </div></a>
+      <a class="beam tilt rv" href="work-w4.html" data-cat="Agent 工程"><div class="beam-in wk spot">
+        <div class="cover cv4"><span class="st">开发中</span><span class="em">🧩</span></div>
+        <div class="body">
+          <span class="cat">Agent 工程</span>
+          <h3>DeepseekHarness</h3>
+          <p>智能体编排框架：把一次长任务拆成可控的状态机——跑得到断点、续得上进度、看得见每一步。…</p>
+          <div class="stack"><span>Python</span><span>LangGraph</span><span>Docker</span><span>pytest</span></div>
+          <span class="more">查看项目详情 <span>→</span></span>
+        </div>
+      </div></a>
+      <a class="beam tilt rv" href="work-w5.html" data-cat="Agent 工程"><div class="beam-in wk spot">
+        <div class="cover cv5"><span class="st">开发中</span><span class="em">🪶</span></div>
+        <div class="body">
+          <span class="cat">Agent 工程</span>
+          <h3>Hermes</h3>
+          <p>上下文与提示词记忆工程：让智能体跨回合记得住前一晚说到哪，而不是每次醒来重新自我介绍。…</p>
+          <div class="stack"><span>Python</span><span>向量检索</span><span>SQLite</span><span>Redis</span></div>
+          <span class="more">查看项目详情 <span>→</span></span>
+        </div>
+      </div></a>
+      <a class="beam tilt rv" href="work-w6.html" data-cat="科研 Harness"><div class="beam-in wk spot">
+        <div class="cover cv6"><span class="st">开发中</span><span class="em">🔬</span></div>
+        <div class="body">
+          <span class="cat">科研 Harness</span>
+          <h3>科研智能体</h3>
+          <p>社团旗舰项目：把科研想法到可投稿论文拆成六个可复跑阶段，每阶段都有产物、有留痕、可回退。…</p>
+          <div class="stack"><span>Python</span><span>LLM</span><span>RAG</span><span>Docker</span></div>
+          <span class="more">查看项目详情 <span>→</span></span>
+        </div>
+      </div></a></div>
+    <div style="text-align:center;margin-top:34px"><a class="btn btn-g" href="projects.html">查看全部作品 →</a></div>
+  </div>
+</section>
+
+<section id="recruit" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="sec-num">05</span>
+      <p class="kicker">JOIN US · 2026 秋季招新</p>
+      <h2>招新进行中 <span style="color:var(--cy)">●</span></h2>
+      <p>面向全校，不限专业、不限年级。我们不看你现在会多少，看你想不想做点东西。</p>
+    </div>
+    <div class="bento" style="grid-template-columns:1fr 1fr;grid-auto-rows:auto;margin-bottom:40px">
+      <div class="bt rv"><span class="ic">🎯</span><h3>报名要求</h3>
+        <ul style="margin-top:10px"><li style="font-size:14px;color:var(--dim);padding:5px 0">零基础可入——只要肯学，学长学姐从头带</li><li style="font-size:14px;color:var(--dim);padding:5px 0">不限专业——技术面前人人平等</li><li style="font-size:14px;color:var(--dim);padding:5px 0">每周至少 4 小时——投入才有产出</li><li style="font-size:14px;color:var(--dim);padding:5px 0">一台自己的电脑——配置不限，热爱不限</li></ul></div>
+      <div class="bt rv"><span class="ic">🎁</span><h3>你将获得</h3>
+        <ul style="margin-top:10px"><li style="font-size:14px;color:var(--dim);padding:5px 0">真实项目经验——简历不再空白</li><li style="font-size:14px;color:var(--dim);padding:5px 0">一路同行的伙伴——和靠谱的人一起做事</li><li style="font-size:14px;color:var(--dim);padding:5px 0">内推机会——毕业直通合作企业</li><li style="font-size:14px;color:var(--dim);padding:5px 0">开源主页——你的代码会被别人用到</li></ul></div>
+    </div>
+    <div class="job-grid">
+      <div class="beam tilt rv"><div class="beam-in job spot">
+        <div class="top"><div><h3>前端开发方向</h3><p class="org">前端组 · 校内</p></div>
+          <span class="badge b-open">● 报名中</span></div>
+        <p style="font-size:14px;color:var(--dim);line-height:1.75">参与真实产品的前端迭代开发，与设计师、后端工程师协作联调，写的组件会被成千上万的用户用到。…</p>
+        <ul><li>熟悉 HTML / CSS / JavaScript 基础</li><li>了解 Vue 或 React 任一框架</li></ul>
+        <a class="more" style="font-family:var(--mono);font-size:14px;color:var(--cy)" href="job-j1.html">查看岗位详情 →</a>
+      </div></div>
+      <div class="beam tilt rv"><div class="beam-in job spot">
+        <div class="top"><div><h3>后端开发方向</h3><p class="org">后端组 · 校内</p></div>
+          <span class="badge b-open">● 报名中</span></div>
+        <p style="font-size:14px;color:var(--dim);line-height:1.75">参与服务端接口设计与开发，优化数据库查询与接口性能，参与代码评审与技术分享。…</p>
+        <ul><li>熟悉 Java 或 Go 任一语言</li><li>了解 MySQL / Redis 常用操作</li></ul>
+        <a class="more" style="font-family:var(--mono);font-size:14px;color:var(--cy)" href="job-j2.html">查看岗位详情 →</a>
+      </div></div>
+      <div class="beam tilt rv"><div class="beam-in job spot">
+        <div class="top"><div><h3>算法方向（AI）</h3><p class="org">AI 组 · 校内</p></div>
+          <span class="badge b-soon">○ 即将开放</span></div>
+        <p style="font-size:14px;color:var(--dim);line-height:1.75">参与机器学习 / 大模型应用研发，复现论文并做工程化落地，搭建与维护实验评测流程。…</p>
+        <ul><li>Python 熟练，了解 PyTorch</li><li>读过至少一个经典模型/论文</li></ul>
+        <a class="more" style="font-family:var(--mono);font-size:14px;color:var(--cy)" href="job-j3.html">查看岗位详情 →</a>
+      </div></div>
+      <div class="beam tilt rv"><div class="beam-in job spot">
+        <div class="top"><div><h3>社团项目组 · 核心开发</h3><p class="org">校内 · 社团自研项目</p></div>
+          <span class="badge b-open">● 长期招募</span></div>
+        <p style="font-size:14px;color:var(--dim);line-height:1.75">参与官网、小程序等自研项目开发，带教新成员完成新手任务，优秀者可获合作企业内推。…</p>
+        <ul><li>社团正式成员</li><li>每周可投入 4 小时以上</li></ul>
+        <a class="more" style="font-family:var(--mono);font-size:14px;color:var(--cy)" href="job-j4.html">查看岗位详情 →</a>
+      </div></div></div>
+    <h2 style="margin:54px 0 6px;font-size:22px">招新时间线</h2>
+    <ol class="steps rv"><li><p class="t">09.15 - 09.30</p><p class="h">线上报名</p><p class="d">扫码或通过页面底部 QQ 群提交报名表</p></li><li><p class="t">10.01 - 10.10</p><p class="h">宣讲会 &amp; 面谈</p><p class="d">聊聊你想做什么，而不是你考了多少分（占位）</p></li><li><p class="t">10.11 - 10.20</p><p class="h">新手任务</p><p class="d">一个小作业，看的是热情和潜力，不是现在的水平</p></li><li><p class="t">10.25</p><p class="h">公布名单</p><p class="d">欢迎仪式 &amp; 首次组会，正式加入</p></li></ol>
+  </div>
+</section>
+
+<section id="contact" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="sec-num">06</span>
+      <p class="kicker">CONTACT · 找到我们</p>
+      <h2>随时来活动室坐坐</h2>
+      
+    </div>
+    <div class="contact-grid"><div class="cc rv"><div class="ic">💬</div><b>招新 QQ 群</b><span>123-456-789（占位）</span></div><div class="cc rv"><div class="ic">📮</div><b>合作邮箱</b><span>xiangwang@club.edu.cn（占位）</span></div><div class="cc rv"><div class="ic">📍</div><b>活动室</b><span>工科楼 A-302（占位）</span></div><div class="cc rv"><div class="ic">🐙</div><b>GitHub</b><span>github.com/xiangwang-club（占位）</span></div></div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="foot-in">
+    <span class="motto">// 象罔得之 —— 无心而求，反而得之</span>
+    <span class="foot-links">
+      <a href="index.html">首页</a>
+      <a href="projects.html">作品</a>
+      <a href="members.html">成员</a>
+      <a href="life.html">动态</a>
+      <a href="index.html#recruit">招新</a>
+    </span>
+    <span>© 2026 象罔社团 · 内容占位，上线前替换</span>
+  </div>
+</footer>
+<button id="top-btn" aria-label="回到顶部">↑</button>
+<script src="assets/site.js"></script>
+</body>
+</html>

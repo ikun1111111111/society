@@ -1,0 +1,17 @@
+.git
+.gitignore
+.gitattributes
+dist
+src
+redesign
+deploy
+build_v3.py
+_swap_activities.py
+check_bundle.py
+_auth_selftest.html
+_detail.html
+Dockerfile
+.dockerignore
+README.md
+**/__pycache__
+**/*.log
